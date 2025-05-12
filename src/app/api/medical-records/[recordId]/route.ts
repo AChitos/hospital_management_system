@@ -6,7 +6,7 @@ import { verifyToken } from '@/lib/auth/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { recordId: string } } // Changed to recordId
 ) {
   try {
     // Verify authentication
@@ -20,13 +20,13 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const id = params.id;
+    const recordId = params.recordId; // Changed to recordId
     const prisma = new PrismaClient();
     
     try {
       // Get the medical record by ID
       const medicalRecord = await prisma.medicalRecord.findUnique({
-        where: { id },
+        where: { id: recordId }, // Changed to recordId
         include: {
           patient: {
             select: {
@@ -54,7 +54,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { recordId: string } } // Changed to recordId
 ) {
   try {
     // Verify authentication
@@ -68,14 +68,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const id = params.id;
+    const recordId = params.recordId; // Changed to recordId
     const data = await request.json();
     const prisma = new PrismaClient();
     
     try {
       // Check if record exists
       const existingRecord = await prisma.medicalRecord.findUnique({
-        where: { id }
+        where: { id: recordId } // Changed to recordId
       });
 
       if (!existingRecord) {
@@ -84,7 +84,7 @@ export async function PUT(
 
       // Update medical record
       const updatedRecord = await prisma.medicalRecord.update({
-        where: { id },
+        where: { id: recordId }, // Changed to recordId
         data: {
           diagnosis: data.diagnosis,
           symptoms: data.symptoms,
@@ -116,7 +116,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { recordId: string } } // Changed to recordId
 ) {
   try {
     // Verify authentication
@@ -130,13 +130,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const id = params.id;
+    const recordId = params.recordId; // Changed to recordId
     const prisma = new PrismaClient();
     
     try {
       // Check if record exists
       const existingRecord = await prisma.medicalRecord.findUnique({
-        where: { id }
+        where: { id: recordId } // Changed to recordId
       });
 
       if (!existingRecord) {
@@ -145,7 +145,7 @@ export async function DELETE(
 
       // Delete medical record
       await prisma.medicalRecord.delete({
-        where: { id }
+        where: { id: recordId } // Changed to recordId
       });
 
       return NextResponse.json({ message: 'Medical record deleted successfully' });

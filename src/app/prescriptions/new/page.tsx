@@ -74,7 +74,7 @@ export default function NewPrescriptionPage() {
     
     try {
       // Send the data to our API
-      const response = await api.post<any>(`/api/prescriptions/${data.patientId}`, data);
+      const response = await api.post<any>(`/api/patients/${data.patientId}/prescriptions`, data);
       
       if (response.error) {
         console.error("Error creating prescription:", response.error);

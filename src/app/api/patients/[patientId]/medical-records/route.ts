@@ -78,29 +78,23 @@ export async function POST(
       );
     }
 
-    const body = await request.json();
-    const { diagnosis, symptoms, notes, vitalSigns, treatmentPlan, followUpDate } = body;
+    const data = await request.json();
 
-    if (!diagnosis) {
-      return NextResponse.json(
-        { error: 'Diagnosis is required' },
-        { status: 400 }
-      );
-    }
-
-    const medicalRecord = await db.medicalRecord.create({
+    const newMedicalRecord = await db.medicalRecord.create({
       data: {
-        diagnosis,
-        symptoms,
-        notes,
-        vitalSigns,
-        treatmentPlan,
-        followUpDate: followUpDate ? new Date(followUpDate) : null,
         patientId,
+        doctorId,
+        diagnosis: data.diagnosis,
+        symptoms: data.symptoms,
+        notes: data.notes,
+        vitalSigns: data.vitalSigns,
+        treatmentPlan: data.treatmentPlan,
+        recordDate: data.recordDate ? new Date(data.recordDate) : new Date(),
+        followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       },
     });
 
-    return NextResponse.json(medicalRecord, { status: 201 });
+    return NextResponse.json(newMedicalRecord);
   } catch (error) {
     console.error('Error creating medical record:', error);
     return NextResponse.json(

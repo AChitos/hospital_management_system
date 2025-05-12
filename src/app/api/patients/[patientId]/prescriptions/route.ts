@@ -7,7 +7,7 @@ import { verifyToken } from '@/lib/auth/auth';
 // GET all prescriptions for a patient
 export async function GET(
   request: NextRequest,
-  { params }: { params: { patient: string } }
+  { params }: { params: { patientId: string } }
 ) {
   try {
     // Verify authentication
@@ -22,11 +22,11 @@ export async function GET(
     }
 
     const doctorId = payload.userId;
-    const patientId = params.patient;
+    const patientId = params.patientId;
     const prisma = new PrismaClient();
     
     try {
-      // Verify the doctor has access to this patient
+      // Check if the patient belongs to the doctor
       const patient = await prisma.patient.findFirst({
         where: {
           id: patientId,
@@ -38,18 +38,13 @@ export async function GET(
         return NextResponse.json({ error: 'Patient not found or access denied' }, { status: 404 });
       }
 
-      // Get all prescriptions for this patient
+      // Get all prescriptions for the patient
       const prescriptions = await prisma.prescription.findMany({
         where: { patientId },
         include: {
-          patient: {
-            select: {
-              firstName: true,
-              lastName: true
-            }
-          }
+          medications: true
         },
-        orderBy: { issuedDate: 'desc' }
+        orderBy: { createdAt: 'desc' }
       });
 
       return NextResponse.json(prescriptions);
@@ -62,10 +57,10 @@ export async function GET(
   }
 }
 
-// POST create a new prescription
+// POST create a new prescription for a patient
 export async function POST(
   request: NextRequest,
-  { params }: { params: { patient: string } }
+  { params }: { params: { patientId: string } }
 ) {
   try {
     // Verify authentication
@@ -80,12 +75,12 @@ export async function POST(
     }
 
     const doctorId = payload.userId;
-    const patientId = params.patient;
+    const patientId = params.patientId;
     const data = await request.json();
     const prisma = new PrismaClient();
     
     try {
-      // Verify the doctor has access to this patient
+      // Check if the patient belongs to the doctor
       const patient = await prisma.patient.findFirst({
         where: {
           id: patientId,
@@ -97,30 +92,29 @@ export async function POST(
         return NextResponse.json({ error: 'Patient not found or access denied' }, { status: 404 });
       }
 
-      // Create new prescription
-      const prescription = await prisma.prescription.create({
+      // Create new prescription with medications
+      const newPrescription = await prisma.prescription.create({
         data: {
-          medication: data.medication,
-          dosage: data.dosage,
-          frequency: data.frequency,
-          duration: data.duration,
-          notes: data.notes,
-          issuedDate: new Date(),
-          expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
           patientId,
-          doctorId
+          doctorId,
+          notes: data.notes || '',
+          expirationDate: data.expirationDate ? new Date(data.expirationDate) : null,
+          medications: {
+            create: data.medications.map((med: any) => ({
+              name: med.name,
+              dosage: med.dosage,
+              frequency: med.frequency,
+              duration: med.duration,
+              notes: med.notes || ''
+            }))
+          }
         },
         include: {
-          patient: {
-            select: {
-              firstName: true,
-              lastName: true
-            }
-          }
+          medications: true
         }
       });
 
-      return NextResponse.json(prescription, { status: 201 });
+      return NextResponse.json(newPrescription);
     } finally {
       await prisma.$disconnect();
     }
