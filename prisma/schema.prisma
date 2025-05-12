@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model for doctor authentication
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password       String
+  firstName      String
+  lastName       String
+  role           String          @default("DOCTOR")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  patients       Patient[]
+  prescriptions  Prescription[]
+}
+
+// Patient model
+model Patient {
+  id              String          @id @default(uuid())
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime
+  gender          String
+  contactNumber   String?
+  email           String?
+  address         String?
+  bloodType       String?
+  allergies       String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  doctor          User            @relation(fields: [doctorId], references: [id])
+  doctorId        String
+  medicalRecords  MedicalRecord[]
+  prescriptions   Prescription[]
+  appointments    Appointment[]
+}
+
+// Medical Record model
+model MedicalRecord {
+  id             String        @id @default(uuid())
+  recordDate     DateTime      @default(now())
+  diagnosis      String
+  symptoms       String?
+  notes          String?
+  vitalSigns     String?
+  treatmentPlan  String?
+  followUpDate   DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  patient        Patient       @relation(fields: [patientId], references: [id])
+  patientId      String
+}
+
+// Prescription model
+model Prescription {
+  id             String        @id @default(uuid())
+  medication     String
+  dosage         String
+  frequency      String
+  duration       String
+  notes          String?
+  issuedDate     DateTime      @default(now())
+  expiryDate     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  patient        Patient       @relation(fields: [patientId], references: [id])
+  patientId      String
+  doctor         User          @relation(fields: [doctorId], references: [id])
+  doctorId       String
+}
+
+// Appointment model
+model Appointment {
+  id              String      @id @default(uuid())
+  appointmentDate DateTime
+  status          String      @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  patient         Patient     @relation(fields: [patientId], references: [id])
+  patientId       String
+}

@@ -1,0 +1,215 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import AuthLayout from "@/components/layouts/AuthLayout";
+import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/utils/helpers";
+
+interface Patient {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  contactNumber?: string;
+  email?: string;
+  updatedAt: string;
+}
+
+export default function PatientsPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        // In a real app, this would fetch from the API
+        // For now, using mock data
+        setTimeout(() => {
+          const mockPatients = [
+            {
+              id: "1",
+              firstName: "John",
+              lastName: "Doe",
+              dateOfBirth: "1980-05-15",
+              gender: "Male",
+              contactNumber: "555-1234",
+              email: "john.doe@example.com",
+              updatedAt: "2023-05-10T09:30:00Z",
+            },
+            {
+              id: "2",
+              firstName: "Jane",
+              lastName: "Smith",
+              dateOfBirth: "1992-08-22",
+              gender: "Female",
+              contactNumber: "555-5678",
+              email: "jane.smith@example.com",
+              updatedAt: "2023-05-09T14:20:00Z",
+            },
+            {
+              id: "3",
+              firstName: "Michael",
+              lastName: "Johnson",
+              dateOfBirth: "1975-11-03",
+              gender: "Male",
+              contactNumber: "555-9012",
+              email: "michael.j@example.com",
+              updatedAt: "2023-05-08T11:15:00Z",
+            },
+            {
+              id: "4",
+              firstName: "Emily",
+              lastName: "Williams",
+              dateOfBirth: "1988-04-12",
+              gender: "Female",
+              contactNumber: "555-3456",
+              email: "emily.w@example.com",
+              updatedAt: "2023-05-07T16:45:00Z",
+            },
+            {
+              id: "5",
+              firstName: "Robert",
+              lastName: "Brown",
+              dateOfBirth: "1965-09-28",
+              gender: "Male",
+              contactNumber: "555-7890",
+              email: "robert.b@example.com",
+              updatedAt: "2023-05-06T10:10:00Z",
+            },
+          ];
+          
+          setPatients(mockPatients);
+          setIsLoading(false);
+        }, 1000);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchPatients();
+  }, []);
+
+  // Filter patients based on search query
+  const filteredPatients = patients.filter(
+    (patient) =>
+      patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.contactNumber?.includes(searchQuery)
+  );
+
+  const calculateAge = (dateOfBirth: string): number => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  if (isLoading) {
+    return (
+      <AuthLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="h-8 w-8 mx-auto border-4 border-t-blue-600 border-b-gray-200 border-l-gray-200 border-r-gray-200 rounded-full animate-spin"></div>
+            <p className="mt-2 text-sm text-gray-500">Loading patients...</p>
+          </div>
+        </div>
+      </AuthLayout>
+    );
+  }
+
+  return (
+    <AuthLayout>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">Patients</h1>
+            <p className="text-gray-500">Manage your patient records</p>
+          </div>
+          <div>
+            <Link href="/patients/new">
+              <Button>
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add Patient
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="p-4 border-b">
+            <div className="relative">
+              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search patients..."
+                className="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left bg-gray-50">
+                  <th className="px-6 py-3 text-sm font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-sm font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+                  <th className="px-6 py-3 text-sm font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                  <th className="px-6 py-3 text-sm font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                  <th className="px-6 py-3 text-sm font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                  <th className="px-6 py-3 text-sm font-medium text-gray-500"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredPatients.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                      No patients found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPatients.map((patient) => (
+                    <tr key={patient.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <Link href={`/patients/${patient.id}`} className="text-blue-600 hover:text-blue-800">
+                          {patient.firstName} {patient.lastName}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 text-gray-700">{patient.gender}</td>
+                      <td className="px-6 py-4 text-gray-700">{calculateAge(patient.dateOfBirth)}</td>
+                      <td className="px-6 py-4 text-gray-700">
+                        {patient.contactNumber || patient.email || "-"}
+                      </td>
+                      <td className="px-6 py-4 text-gray-700 whitespace-nowrap">
+                        {formatDate(new Date(patient.updatedAt))}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link
+                          href={`/patients/${patient.id}`}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          Details
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </AuthLayout>
+  );
+}

@@ -1,0 +1,218 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import AuthLayout from "@/components/layouts/AuthLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+interface Patient {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface MedicalRecordFormData {
+  patientId: string;
+  recordDate: string;
+  diagnosis: string;
+  symptoms?: string;
+  vitalSigns?: string;
+  notes?: string;
+  treatmentPlan?: string;
+  followUpDate?: string;
+}
+
+export default function NewMedicalRecordPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const patientIdFromUrl = searchParams.get("patientId");
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [patients, setPatients] = useState<Patient[]>([]);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<MedicalRecordFormData>({
+    defaultValues: {
+      patientId: patientIdFromUrl || "",
+      recordDate: new Date().toISOString().split("T")[0],
+    },
+  });
+
+  // Fetch patients for selection
+  useEffect(() => {
+    const fetchPatients = () => {
+      // In a real app, we would fetch from an API
+      // Mock data for now
+      setTimeout(() => {
+        setPatients([
+          { id: "1", firstName: "John", lastName: "Doe" },
+          { id: "2", firstName: "Jane", lastName: "Smith" },
+          { id: "3", firstName: "Michael", lastName: "Johnson" },
+          { id: "4", firstName: "Emily", lastName: "Williams" },
+          { id: "5", firstName: "Robert", lastName: "Brown" },
+        ]);
+      }, 500);
+    };
+
+    fetchPatients();
+  }, []);
+
+  const onSubmit = async (data: MedicalRecordFormData) => {
+    setIsLoading(true);
+    
+    try {
+      // In a real app, we would send this to an API
+      console.log("Medical record data:", data);
+      
+      // Mock successful submission
+      setTimeout(() => {
+        setIsLoading(false);
+        router.push("/medical-records");
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Error creating medical record:", error);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AuthLayout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <div className="flex items-center">
+            <Link href="/medical-records" className="mr-4">
+              <Button variant="outline" size="icon">
+                <ArrowLeftIcon className="h-4 w-4" />
+              </Button>
+            </Link>
+            <h1 className="text-2xl font-bold">Create New Medical Record</h1>
+          </div>
+        </div>
+
+        <Card className="max-w-3xl mx-auto">
+          <CardHeader>
+            <CardTitle>Medical Record Details</CardTitle>
+          </CardHeader>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="patientId">Patient</Label>
+                  <select
+                    id="patientId"
+                    className="w-full p-2 border rounded-md"
+                    {...register("patientId", { required: "Please select a patient" })}
+                  >
+                    <option value="">Select Patient</option>
+                    {patients.map((patient) => (
+                      <option key={patient.id} value={patient.id}>
+                        {patient.firstName} {patient.lastName}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.patientId && (
+                    <p className="text-red-500 text-sm mt-1">{errors.patientId.message}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="recordDate">Record Date</Label>
+                  <Input
+                    id="recordDate"
+                    type="date"
+                    {...register("recordDate", { required: "Date is required" })}
+                  />
+                  {errors.recordDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.recordDate.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="diagnosis">Diagnosis</Label>
+                <Input
+                  id="diagnosis"
+                  placeholder="Primary diagnosis"
+                  {...register("diagnosis", { required: "Diagnosis is required" })}
+                />
+                {errors.diagnosis && (
+                  <p className="text-red-500 text-sm mt-1">{errors.diagnosis.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="symptoms">Symptoms</Label>
+                <Input
+                  id="symptoms"
+                  placeholder="Chief complaints and symptoms"
+                  {...register("symptoms")}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="vitalSigns">Vital Signs</Label>
+                <Input
+                  id="vitalSigns"
+                  placeholder="e.g., BP: 120/80, HR: 72, RR: 16, Temp: 37.0°C"
+                  {...register("vitalSigns")}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="notes">Notes</Label>
+                <textarea
+                  id="notes"
+                  rows={3}
+                  className="w-full p-2 border rounded-md"
+                  placeholder="Additional clinical notes"
+                  {...register("notes")}
+                ></textarea>
+              </div>
+
+              <div>
+                <Label htmlFor="treatmentPlan">Treatment Plan</Label>
+                <textarea
+                  id="treatmentPlan"
+                  rows={3}
+                  className="w-full p-2 border rounded-md"
+                  placeholder="Treatment recommendations and plan"
+                  {...register("treatmentPlan")}
+                ></textarea>
+              </div>
+
+              <div>
+                <Label htmlFor="followUpDate">Follow-up Date (optional)</Label>
+                <Input
+                  id="followUpDate"
+                  type="date"
+                  {...register("followUpDate")}
+                />
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex justify-end space-x-4">
+              <Link href="/medical-records">
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </Link>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Creating..." : "Create Medical Record"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </AuthLayout>
+  );
+}
