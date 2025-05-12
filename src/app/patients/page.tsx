@@ -6,6 +6,8 @@ import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
+import { useAuthStore } from "@/lib/auth/authStore";
 
 interface Patient {
   id: string;
@@ -26,67 +28,19 @@ export default function PatientsPage() {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        // In a real app, this would fetch from the API
-        // For now, using mock data
-        setTimeout(() => {
-          const mockPatients = [
-            {
-              id: "1",
-              firstName: "John",
-              lastName: "Doe",
-              dateOfBirth: "1980-05-15",
-              gender: "Male",
-              contactNumber: "555-1234",
-              email: "john.doe@example.com",
-              updatedAt: "2023-05-10T09:30:00Z",
-            },
-            {
-              id: "2",
-              firstName: "Jane",
-              lastName: "Smith",
-              dateOfBirth: "1992-08-22",
-              gender: "Female",
-              contactNumber: "555-5678",
-              email: "jane.smith@example.com",
-              updatedAt: "2023-05-09T14:20:00Z",
-            },
-            {
-              id: "3",
-              firstName: "Michael",
-              lastName: "Johnson",
-              dateOfBirth: "1975-11-03",
-              gender: "Male",
-              contactNumber: "555-9012",
-              email: "michael.j@example.com",
-              updatedAt: "2023-05-08T11:15:00Z",
-            },
-            {
-              id: "4",
-              firstName: "Emily",
-              lastName: "Williams",
-              dateOfBirth: "1988-04-12",
-              gender: "Female",
-              contactNumber: "555-3456",
-              email: "emily.w@example.com",
-              updatedAt: "2023-05-07T16:45:00Z",
-            },
-            {
-              id: "5",
-              firstName: "Robert",
-              lastName: "Brown",
-              dateOfBirth: "1965-09-28",
-              gender: "Male",
-              contactNumber: "555-7890",
-              email: "robert.b@example.com",
-              updatedAt: "2023-05-06T10:10:00Z",
-            },
-          ];
-          
-          setPatients(mockPatients);
-          setIsLoading(false);
-        }, 1000);
+        setIsLoading(true);
+        
+        // Fetch patients from the API
+        const response = await api.get<Patient[]>('/api/patients');
+        
+        if (response.data) {
+          setPatients(response.data);
+        } else {
+          console.error("Error fetching patients:", response.error);
+        }
       } catch (error) {
         console.error("Error fetching patients:", error);
+      } finally {
         setIsLoading(false);
       }
     };

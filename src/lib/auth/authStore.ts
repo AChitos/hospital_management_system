@@ -31,3 +31,8 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// Helper function to get access token (can be used in non-component code)
+export function getAccessToken(): string | null {
+  return useAuthStore.getState().token;
+}

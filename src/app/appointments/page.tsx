@@ -7,6 +7,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
 
 interface Appointment {
   id: string;
@@ -24,76 +25,26 @@ export default function AppointmentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        // In a real app, we would fetch from the API
-        // For now, using mock data
-        setTimeout(() => {
-          const mockAppointments = [
-            {
-              id: "1",
-              appointmentDate: "2025-05-20T09:00:00Z", // Future appointment
-              status: "SCHEDULED",
-              patient: {
-                id: "1",
-                firstName: "John",
-                lastName: "Doe",
-              },
-              notes: "Follow-up appointment",
-            },
-            {
-              id: "2",
-              appointmentDate: "2025-05-13T10:30:00Z", // Tomorrow's appointment
-              status: "SCHEDULED",
-              patient: {
-                id: "2",
-                firstName: "Jane",
-                lastName: "Smith",
-              },
-              notes: "Pre-op assessment",
-            },
-            {
-              id: "3",
-              appointmentDate: "2025-05-12T14:00:00Z", // Today's appointment (already marked as completed)
-              status: "COMPLETED",
-              patient: {
-                id: "3",
-                firstName: "Michael",
-                lastName: "Johnson",
-              },
-              notes: "Anesthesia consultation",
-            },
-            {
-              id: "4",
-              appointmentDate: "2025-05-10T11:15:00Z",
-              status: "CANCELLED",
-              patient: {
-                id: "4",
-                firstName: "Emily",
-                lastName: "Williams",
-              },
-              notes: "Patient requested rescheduling",
-            },
-            {
-              id: "5",
-              appointmentDate: "2025-05-16T15:30:00Z",
-              status: "SCHEDULED",
-              patient: {
-                id: "5",
-                firstName: "Robert",
-                lastName: "Brown",
-              },
-              notes: "Initial consultation",
-            },
-          ] as Appointment[];
-          
-          setAppointments(mockAppointments);
+        const response = await api.get<Appointment[]>('/api/appointments');
+        
+        if (response.error) {
+          setError(response.error);
           setIsLoading(false);
-        }, 500);
+          return;
+        }
+        
+        if (response.data) {
+          setAppointments(response.data);
+        }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching appointments:", error);
+        setError("Failed to load appointments");
         setIsLoading(false);
       }
     };
@@ -106,23 +57,21 @@ export default function AppointmentsPage() {
     const patientName = `${appointment.patient.firstName} ${appointment.patient.lastName}`.toLowerCase();
     const query = searchQuery.toLowerCase();
     return patientName.includes(query) || 
-           appointment.status.toLowerCase().includes(query) ||
            (appointment.notes && appointment.notes.toLowerCase().includes(query));
   });
 
-  // Helper function to get status style
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "SCHEDULED":
-        return "bg-blue-100 text-blue-800";
-      case "COMPLETED":
-        return "bg-green-100 text-green-800";
-      case "CANCELLED":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  // Group appointments by status
+  const scheduledAppointments = filteredAppointments.filter(
+    (appointment) => appointment.status === "SCHEDULED"
+  );
+  
+  const completedAppointments = filteredAppointments.filter(
+    (appointment) => appointment.status === "COMPLETED"
+  );
+  
+  const cancelledAppointments = filteredAppointments.filter(
+    (appointment) => appointment.status === "CANCELLED"
+  );
 
   return (
     <AuthLayout>
@@ -137,6 +86,18 @@ export default function AppointmentsPage() {
           </Link>
         </div>
 
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-red-700">
+                  Error loading appointments: {error}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <Card className="mb-6 p-4">
           <div className="flex items-center">
             <div className="relative w-full md:w-1/3">
@@ -154,73 +115,212 @@ export default function AppointmentsPage() {
           </div>
         </Card>
 
-        <div className="bg-white rounded-lg shadow">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date & Time
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Patient
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Notes
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      Loading appointments...
-                    </td>
-                  </tr>
-                ) : filteredAppointments.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      No appointments found
-                    </td>
-                  </tr>
-                ) : (
-                  filteredAppointments.map((appointment) => (
-                    <tr key={appointment.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        {formatDate(appointment.appointmentDate, true)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link href={`/patients/${appointment.patient.id}`} className="text-blue-600 hover:text-blue-800">
-                          {appointment.patient.firstName} {appointment.patient.lastName}
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-block px-2 py-1 text-xs rounded ${getStatusStyle(appointment.status)}`}>
-                          {appointment.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-700">
-                        {appointment.notes || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link
-                          href={`/appointments/${appointment.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          Details
-                        </Link>
-                      </td>
+        <div className="space-y-8">
+          {/* Scheduled appointments */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Scheduled Appointments</h2>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date & Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Patient
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Notes
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                          Loading appointments...
+                        </td>
+                      </tr>
+                    ) : scheduledAppointments.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                          No scheduled appointments
+                        </td>
+                      </tr>
+                    ) : (
+                      scheduledAppointments.map((appointment) => (
+                        <tr key={appointment.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center">
+                              <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
+                              <span>{formatDate(appointment.appointmentDate, true)}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <Link href={`/patients/${appointment.patient.id}`} className="text-blue-600 hover:text-blue-800">
+                              {appointment.patient.firstName} {appointment.patient.lastName}
+                            </Link>
+                          </td>
+                          <td className="px-6 py-4 text-gray-700">
+                            {appointment.notes || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <Link
+                              href={`/appointments/${appointment.id}`}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              Details
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* Completed appointments */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Completed Appointments</h2>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date & Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Patient
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Notes
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                          Loading appointments...
+                        </td>
+                      </tr>
+                    ) : completedAppointments.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                          No completed appointments
+                        </td>
+                      </tr>
+                    ) : (
+                      completedAppointments.map((appointment) => (
+                        <tr key={appointment.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center">
+                              <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
+                              <span>{formatDate(appointment.appointmentDate, true)}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <Link href={`/patients/${appointment.patient.id}`} className="text-blue-600 hover:text-blue-800">
+                              {appointment.patient.firstName} {appointment.patient.lastName}
+                            </Link>
+                          </td>
+                          <td className="px-6 py-4 text-gray-700">
+                            {appointment.notes || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <Link
+                              href={`/appointments/${appointment.id}`}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              Details
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          {/* Cancelled appointments */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Cancelled Appointments</h2>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date & Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Patient
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Notes
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                          Loading appointments...
+                        </td>
+                      </tr>
+                    ) : cancelledAppointments.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                          No cancelled appointments
+                        </td>
+                      </tr>
+                    ) : (
+                      cancelledAppointments.map((appointment) => (
+                        <tr key={appointment.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center">
+                              <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
+                              <span>{formatDate(appointment.appointmentDate, true)}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <Link href={`/patients/${appointment.patient.id}`} className="text-blue-600 hover:text-blue-800">
+                              {appointment.patient.firstName} {appointment.patient.lastName}
+                            </Link>
+                          </td>
+                          <td className="px-6 py-4 text-gray-700">
+                            {appointment.notes || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <Link
+                              href={`/appointments/${appointment.id}`}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              Details
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>

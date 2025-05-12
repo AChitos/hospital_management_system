@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/utils/apiClient";
 
 interface PatientFormData {
   firstName: string;
@@ -42,17 +43,20 @@ export default function NewPatientPage() {
     setIsLoading(true);
     
     try {
-      // In a real app, we would send this to an API
-      console.log("Patient data:", data);
+      // Send the patient data to the API
+      const response = await api.post('/api/patients', data);
       
-      // Mock successful submission
-      setTimeout(() => {
-        setIsLoading(false);
+      if (response.data) {
         router.push("/patients");
-      }, 1000);
-      
+      } else {
+        console.error("Error creating patient:", response.error);
+        // Display an error message to the user here
+        alert(`Failed to create patient: ${response.error || 'Unknown error'}`);
+      }
     } catch (error) {
       console.error("Error creating patient:", error);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };

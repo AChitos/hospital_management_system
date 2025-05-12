@@ -8,6 +8,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
 
 interface Patient {
   id: string;
@@ -62,91 +63,59 @@ export default function PatientDetailsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
-    // In a production app, we'd fetch from API endpoints
-    // For now using mock data
-    const fetchPatientData = () => {
-      setTimeout(() => {
-        // Mock patient data
+    const fetchPatientData = async () => {
+      if (!patientId) return;
+      
+      setIsLoading(true);
+      
+      try {
+        // Fetch patient details from API
+        const response = await api.get<any>(`/api/patients/${patientId}`);
+        
+        if (!response.data) {
+          console.error("Error fetching patient:", response.error);
+          setIsLoading(false);
+          return;
+        }
+        
+        const patientData = response.data;
+        
+        // Set patient data
         setPatient({
-          id: patientId,
-          firstName: "John",
-          lastName: "Doe",
-          dateOfBirth: "1980-05-15",
-          gender: "Male",
-          contactNumber: "555-1234",
-          email: "john.doe@example.com",
-          address: "123 Main St, Anytown, USA",
-          bloodType: "A+",
-          allergies: "Penicillin",
-          createdAt: "2023-01-10T09:30:00Z",
-          updatedAt: "2023-05-10T09:30:00Z",
+          id: patientData.id,
+          firstName: patientData.firstName,
+          lastName: patientData.lastName,
+          dateOfBirth: patientData.dateOfBirth,
+          gender: patientData.gender,
+          contactNumber: patientData.contactNumber,
+          email: patientData.email,
+          address: patientData.address,
+          bloodType: patientData.bloodType,
+          allergies: patientData.allergies,
+          createdAt: patientData.createdAt,
+          updatedAt: patientData.updatedAt,
         });
-
-        // Mock medical records
-        setMedicalRecords([
-          {
-            id: "mr1",
-            recordDate: "2023-04-15T10:00:00Z",
-            diagnosis: "Hypertension",
-            symptoms: "Headache, dizziness",
-            notes: "Patient presented with elevated blood pressure",
-            vitalSigns: "BP: 150/95, HR: 88, RR: 16, Temp: 37.1°C",
-          },
-          {
-            id: "mr2",
-            recordDate: "2023-02-10T14:30:00Z",
-            diagnosis: "Upper Respiratory Infection",
-            symptoms: "Cough, sore throat, congestion",
-            notes: "Symptoms present for 5 days",
-            vitalSigns: "BP: 120/80, HR: 76, RR: 18, Temp: 37.8°C",
-          }
-        ]);
-
-        // Mock prescriptions
-        setPrescriptions([
-          {
-            id: "p1",
-            medication: "Lisinopril",
-            dosage: "10mg",
-            frequency: "Once daily",
-            duration: "30 days",
-            issuedDate: "2023-04-15T10:30:00Z",
-            expiryDate: "2023-05-15T10:30:00Z",
-          },
-          {
-            id: "p2",
-            medication: "Amoxicillin",
-            dosage: "500mg",
-            frequency: "Three times daily",
-            duration: "10 days",
-            issuedDate: "2023-02-10T15:00:00Z",
-            expiryDate: "2023-02-20T15:00:00Z",
-          }
-        ]);
-
-        // Mock appointments
-        setAppointments([
-          {
-            id: "a1",
-            appointmentDate: "2023-06-20T09:00:00Z",
-            status: "SCHEDULED",
-            notes: "Follow-up appointment",
-          },
-          {
-            id: "a2",
-            appointmentDate: "2023-04-15T10:00:00Z",
-            status: "COMPLETED",
-            notes: "Initial consultation",
-          }
-        ]);
-
+        
+        // Set related data if available in the response
+        if (patientData.medicalRecords) {
+          setMedicalRecords(patientData.medicalRecords);
+        }
+        
+        if (patientData.prescriptions) {
+          setPrescriptions(patientData.prescriptions);
+        }
+        
+        if (patientData.appointments) {
+          setAppointments(patientData.appointments);
+        }
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+      } finally {
         setIsLoading(false);
-      }, 500);
+      }
     };
 
-    if (patientId) {
-      fetchPatientData();
-    }
+    fetchPatientData();
   }, [patientId]);
 
   if (isLoading) {

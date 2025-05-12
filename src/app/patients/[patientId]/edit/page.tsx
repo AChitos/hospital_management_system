@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/utils/apiClient";
 
 interface PatientFormData {
   firstName: string;
@@ -47,59 +48,59 @@ export default function EditPatientPage() {
 
   useEffect(() => {
     const fetchPatientData = async () => {
+      if (!patientId) return;
+      
+      setIsLoading(true);
+      
       try {
-        // In a real app, we'd fetch from an API endpoint
-        // For now using mock data
-        setTimeout(() => {
-          // Mock patient data
-          const mockPatient = {
-            id: patientId,
-            firstName: "John",
-            lastName: "Doe",
-            dateOfBirth: "1980-05-15",
-            gender: "Male",
-            contactNumber: "555-1234",
-            email: "john.doe@example.com",
-            address: "123 Main St, Anytown, USA",
-            bloodType: "A+",
-            allergies: "Penicillin",
-            createdAt: "2023-01-10T09:30:00Z",
-            updatedAt: "2023-05-10T09:30:00Z",
-          };
-          
-          setPatient(mockPatient);
-          
-          // Set form values
-          reset(mockPatient);
-          
+        // Fetch patient details from API
+        const response = await api.get<Patient>(`/api/patients/${patientId}`);
+        
+        if (!response.data) {
+          console.error("Error fetching patient:", response.error);
           setIsLoading(false);
-        }, 500);
+          return;
+        }
+        
+        const patientData = response.data;
+        setPatient(patientData);
+        
+        // Format date for the form (YYYY-MM-DD)
+        const dateOfBirth = new Date(patientData.dateOfBirth);
+        const formattedDate = dateOfBirth.toISOString().split('T')[0];
+        
+        // Set form values
+        reset({
+          ...patientData,
+          dateOfBirth: formattedDate
+        });
       } catch (error) {
         console.error("Error fetching patient data:", error);
+      } finally {
         setIsLoading(false);
       }
     };
 
-    if (patientId) {
-      fetchPatientData();
-    }
+    fetchPatientData();
   }, [patientId, reset]);
 
   const onSubmit = async (data: PatientFormData) => {
     setIsSaving(true);
     
     try {
-      // In a real app, we would send this to an API
-      console.log("Updated patient data:", data);
+      // Send updated patient data to the API
+      const response = await api.put(`/api/patients/${patientId}`, data);
       
-      // Mock successful submission
-      setTimeout(() => {
-        setIsSaving(false);
+      if (response.data) {
         router.push(`/patients/${patientId}`);
-      }, 1000);
-      
+      } else {
+        console.error("Error updating patient:", response.error);
+        alert(`Failed to update patient: ${response.error || 'Unknown error'}`);
+      }
     } catch (error) {
       console.error("Error updating patient:", error);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
       setIsSaving(false);
     }
   };

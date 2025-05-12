@@ -7,6 +7,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
 
 interface MedicalRecord {
   id: string;
@@ -26,79 +27,23 @@ export default function MedicalRecordsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMedicalRecords = async () => {
       try {
-        // In a real app, we would fetch from the API
-        // For now, using mock data
-        setTimeout(() => {
-          const mockRecords = [
-            {
-              id: "1",
-              recordDate: "2025-05-10T09:00:00Z",
-              diagnosis: "Hypertension",
-              symptoms: "Headache, dizziness",
-              vitalSigns: "BP: 150/95, HR: 88, RR: 16, Temp: 37.1°C",
-              patient: {
-                id: "1",
-                firstName: "John",
-                lastName: "Doe",
-              },
-            },
-            {
-              id: "2",
-              recordDate: "2025-05-09T10:30:00Z",
-              diagnosis: "Upper Respiratory Infection",
-              symptoms: "Cough, sore throat, congestion",
-              vitalSigns: "BP: 120/80, HR: 76, RR: 18, Temp: 37.8°C",
-              patient: {
-                id: "2",
-                firstName: "Jane",
-                lastName: "Smith",
-              },
-            },
-            {
-              id: "3",
-              recordDate: "2025-05-08T14:00:00Z",
-              diagnosis: "Lower Back Pain",
-              symptoms: "Pain radiating to right leg, limited mobility",
-              vitalSigns: "BP: 130/85, HR: 72, RR: 14, Temp: 36.9°C",
-              patient: {
-                id: "3",
-                firstName: "Michael",
-                lastName: "Johnson",
-              },
-            },
-            {
-              id: "4",
-              recordDate: "2025-05-07T11:15:00Z",
-              diagnosis: "Anxiety Disorder",
-              symptoms: "Restlessness, insomnia, racing thoughts",
-              vitalSigns: "BP: 125/82, HR: 96, RR: 20, Temp: 37.0°C",
-              patient: {
-                id: "4",
-                firstName: "Emily",
-                lastName: "Williams",
-              },
-            },
-            {
-              id: "5",
-              recordDate: "2025-05-06T15:30:00Z",
-              diagnosis: "Type 2 Diabetes",
-              symptoms: "Increased thirst, frequent urination",
-              vitalSigns: "BP: 135/88, HR: 78, RR: 16, Temp: 36.8°C",
-              patient: {
-                id: "5",
-                firstName: "Robert",
-                lastName: "Brown",
-              },
-            },
-          ] as MedicalRecord[];
-          
-          setMedicalRecords(mockRecords);
+        const response = await api.get<MedicalRecord[]>('/api/medical-records');
+        
+        if (response.error) {
+          setError(response.error);
           setIsLoading(false);
-        }, 500);
+          return;
+        }
+        
+        if (response.data) {
+          setMedicalRecords(response.data);
+        }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching medical records:", error);
         setIsLoading(false);
@@ -129,6 +74,18 @@ export default function MedicalRecordsPage() {
             </Button>
           </Link>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-red-700">
+                  Error loading medical records: {error}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Card className="mb-6 p-4">
           <div className="flex items-center">

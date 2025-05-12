@@ -7,6 +7,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
 
 interface Prescription {
   id: string;
@@ -27,87 +28,26 @@ export default function PrescriptionsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        // In a real app, we would fetch from the API
-        // For now, using mock data
-        setTimeout(() => {
-          const mockPrescriptions = [
-            {
-              id: "1",
-              medication: "Propofol",
-              dosage: "10mg/ml",
-              frequency: "As needed",
-              duration: "Single use",
-              issuedDate: "2025-05-10T09:00:00Z",
-              patient: {
-                id: "1",
-                firstName: "John",
-                lastName: "Doe",
-              },
-            },
-            {
-              id: "2",
-              medication: "Fentanyl",
-              dosage: "50mcg/ml",
-              frequency: "As needed",
-              duration: "Single use",
-              issuedDate: "2025-05-09T10:30:00Z",
-              patient: {
-                id: "2",
-                firstName: "Jane",
-                lastName: "Smith",
-              },
-            },
-            {
-              id: "3",
-              medication: "Midazolam",
-              dosage: "1mg/ml",
-              frequency: "As needed",
-              duration: "Single use",
-              issuedDate: "2025-05-08T14:00:00Z",
-              patient: {
-                id: "3",
-                firstName: "Michael",
-                lastName: "Johnson",
-              },
-            },
-            {
-              id: "4",
-              medication: "Morphine",
-              dosage: "10mg/ml",
-              frequency: "Every 4 hours",
-              duration: "72 hours",
-              issuedDate: "2025-05-07T11:15:00Z",
-              expiryDate: "2025-05-10T11:15:00Z",
-              patient: {
-                id: "4",
-                firstName: "Emily",
-                lastName: "Williams",
-              },
-            },
-            {
-              id: "5",
-              medication: "Lidocaine",
-              dosage: "2%",
-              frequency: "As needed",
-              duration: "Single use",
-              issuedDate: "2025-05-06T15:30:00Z",
-              patient: {
-                id: "5",
-                firstName: "Robert",
-                lastName: "Brown",
-              },
-            },
-          ] as Prescription[];
-          
-          setPrescriptions(mockPrescriptions);
+        const response = await api.get<Prescription[]>('/api/prescriptions');
+        
+        if (response.error) {
+          setError(response.error);
           setIsLoading(false);
-        }, 500);
+          return;
+        }
+        
+        if (response.data) {
+          setPrescriptions(response.data);
+        }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching prescriptions:", error);
+        setError(error instanceof Error ? error.message : "Failed to load prescriptions");
         setIsLoading(false);
       }
     };
@@ -120,15 +60,9 @@ export default function PrescriptionsPage() {
     const patientName = `${prescription.patient.firstName} ${prescription.patient.lastName}`.toLowerCase();
     const query = searchQuery.toLowerCase();
     return patientName.includes(query) || 
-           prescription.medication.toLowerCase().includes(query) ||
+           prescription.medication.toLowerCase().includes(query) || 
            prescription.dosage.toLowerCase().includes(query);
   });
-
-  // Check if prescription is active (not expired)
-  const isPrescriptionActive = (prescription: Prescription) => {
-    if (!prescription.expiryDate) return true;
-    return new Date(prescription.expiryDate) > new Date();
-  };
 
   return (
     <AuthLayout>
@@ -143,6 +77,18 @@ export default function PrescriptionsPage() {
           </Link>
         </div>
 
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-red-700">
+                  Error loading prescriptions: {error}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <Card className="mb-6 p-4">
           <div className="flex items-center">
             <div className="relative w-full md:w-1/3">
@@ -160,9 +106,9 @@ export default function PrescriptionsPage() {
           </div>
         </Card>
 
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="min-w-full">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -175,10 +121,10 @@ export default function PrescriptionsPage() {
                     Dosage
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Issued Date
+                    Frequency
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    Issued Date
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -201,7 +147,7 @@ export default function PrescriptionsPage() {
                 ) : (
                   filteredPrescriptions.map((prescription) => (
                     <tr key={prescription.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 font-medium">
                         {prescription.medication}
                       </td>
                       <td className="px-6 py-4">
@@ -213,16 +159,15 @@ export default function PrescriptionsPage() {
                         {prescription.dosage}
                       </td>
                       <td className="px-6 py-4 text-gray-700">
-                        {formatDate(prescription.issuedDate)}
+                        {prescription.frequency}
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-block px-2 py-1 text-xs rounded ${
-                          isPrescriptionActive(prescription) 
-                          ? "bg-green-100 text-green-800" 
-                          : "bg-red-100 text-red-800"
-                        }`}>
-                          {isPrescriptionActive(prescription) ? "Active" : "Expired"}
-                        </span>
+                      <td className="px-6 py-4 text-gray-700">
+                        {formatDate(prescription.issuedDate)}
+                        {prescription.expiryDate && (
+                          <div className="text-xs text-gray-500">
+                            Expires: {formatDate(prescription.expiryDate)}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <Link

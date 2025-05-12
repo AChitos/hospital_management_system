@@ -10,6 +10,9 @@
     "seed": "node prisma/seed.js",
     "db:reset": "prisma migrate reset --force --skip-generate && npx prisma db push && npm run seed"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
     "@heroicons/react": "^2.2.0",

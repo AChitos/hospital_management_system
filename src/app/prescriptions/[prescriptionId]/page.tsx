@@ -8,6 +8,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
 
 interface Prescription {
   id: string;
@@ -37,39 +38,33 @@ export default function PrescriptionDetailsPage() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [prescription, setPrescription] = useState<Prescription | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPrescriptionData = async () => {
       try {
-        // In a real app, we'd fetch from an API endpoint
-        // For now using mock data
-        setTimeout(() => {
-          // Mock prescription data
-          setPrescription({
-            id: prescriptionId,
-            medication: "Propofol",
-            dosage: "10mg/ml",
-            frequency: "As needed",
-            duration: "Single use",
-            notes: "For induction of general anesthesia",
-            issuedDate: "2025-05-10T09:00:00Z",
-            expiryDate: "2025-06-10T09:00:00Z",
-            patient: {
-              id: "1",
-              firstName: "John",
-              lastName: "Doe",
-            },
-            doctor: {
-              id: "doctor-1",
-              firstName: "Jane",
-              lastName: "Smith",
-            }
-          });
-          
+        // First, we need to get all prescriptions and filter by ID client-side
+        // This is a workaround until we update our API routes to be more consistent
+        const response = await api.get<Prescription[]>('/api/prescriptions');
+        
+        if (response.error) {
+          setError(response.error);
           setIsLoading(false);
-        }, 500);
+          return;
+        }
+        
+        if (response.data) {
+          const foundPrescription = response.data.find(p => p.id === prescriptionId);
+          if (foundPrescription) {
+            setPrescription(foundPrescription);
+          } else {
+            setError('Prescription not found');
+          }
+        }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching prescription data:", error);
+        setError(error instanceof Error ? error.message : "Failed to load prescription");
         setIsLoading(false);
       }
     };
@@ -96,16 +91,39 @@ export default function PrescriptionDetailsPage() {
     );
   }
 
+  if (error) {
+    return (
+      <AuthLayout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-red-700">
+                  Error loading prescription: {error}
+                </p>
+              </div>
+            </div>
+          </div>
+          <Button onClick={() => router.back()} className="flex items-center">
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Go Back
+          </Button>
+        </div>
+      </AuthLayout>
+    );
+  }
+
   if (!prescription) {
     return (
       <AuthLayout>
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col items-center justify-center h-64">
-            <p className="text-red-500 mb-4">Prescription not found</p>
-            <Button onClick={() => router.push("/prescriptions")}>
-              Return to Prescriptions List
-            </Button>
+          <div className="flex items-center justify-center h-64">
+            <p className="text-gray-500">Prescription not found</p>
           </div>
+          <Button onClick={() => router.back()} className="flex items-center">
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Go Back
+          </Button>
         </div>
       </AuthLayout>
     );
@@ -114,131 +132,101 @@ export default function PrescriptionDetailsPage() {
   return (
     <AuthLayout>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link href="/prescriptions" className="mr-4">
-                <Button variant="outline" size="icon">
-                  <ArrowLeftIcon className="h-4 w-4" />
+        <div className="flex items-center mb-6">
+          <Button variant="outline" onClick={() => router.back()} className="mr-2">
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <h1 className="text-2xl font-bold">Prescription Details</h1>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <Card className="mb-6">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">
+                    {prescription.medication}
+                  </CardTitle>
+                  <p className="text-sm text-gray-500">
+                    {isPrescriptionActive(prescription) 
+                      ? <span className="text-green-600">Active</span> 
+                      : <span className="text-red-600">Expired</span>}
+                  </p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="outline" asChild>
+                    <Link href={`/prescriptions/${prescription.id}/edit`}>
+                      <PencilIcon className="h-4 w-4 mr-2" />
+                      Edit
+                    </Link>
+                  </Button>
+                  <Button variant="outline">
+                    <DocumentDuplicateIcon className="h-4 w-4 mr-2" />
+                    Print
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-2">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Dosage</h3>
+                    <p>{prescription.dosage}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Frequency</h3>
+                    <p>{prescription.frequency}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Duration</h3>
+                    <p>{prescription.duration}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Issued Date</h3>
+                    <p>{formatDate(prescription.issuedDate)}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Expiry Date</h3>
+                    <p>{prescription.expiryDate ? formatDate(prescription.expiryDate) : "Not specified"}</p>
+                  </div>
+                </div>
+                {prescription.notes && (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-medium text-gray-500">Notes</h3>
+                    <p className="whitespace-pre-wrap">{prescription.notes}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Patient Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-gray-500">Patient Name</h3>
+                  <Link href={`/patients/${prescription.patient.id}`} className="text-blue-600 hover:text-blue-800">
+                    {prescription.patient.firstName} {prescription.patient.lastName}
+                  </Link>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Prescribed By</h3>
+                  <p>Dr. {prescription.doctor.firstName} {prescription.doctor.lastName}</p>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-start border-t pt-4">
+                <Button variant="outline" asChild>
+                  <Link href={`/patients/${prescription.patient.id}`}>
+                    View Patient Profile
+                  </Link>
                 </Button>
-              </Link>
-              <h1 className="text-2xl font-bold">
-                Prescription: {prescription.medication}
-              </h1>
-            </div>
-            <div className="flex space-x-2">
-              <Link href={`/prescriptions/new?duplicate=${prescriptionId}`}>
-                <Button variant="outline">
-                  <DocumentDuplicateIcon className="h-4 w-4 mr-2" />
-                  Duplicate
-                </Button>
-              </Link>
-              <Link href={`/prescriptions/${prescriptionId}/edit`}>
-                <Button>
-                  <PencilIcon className="h-4 w-4 mr-2" />
-                  Edit Prescription
-                </Button>
-              </Link>
-            </div>
+              </CardFooter>
+            </Card>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Main Prescription Info */}
-          <Card className="col-span-1 md:col-span-2">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Prescription Details</CardTitle>
-                <span className={`inline-block px-2 py-1 text-xs rounded 
-                  ${isPrescriptionActive(prescription) ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-                >
-                  {isPrescriptionActive(prescription) ? "Active" : "Expired"}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <p className="text-sm text-gray-500">Medication</p>
-                  <p className="font-medium">{prescription.medication}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Dosage</p>
-                  <p className="font-medium">{prescription.dosage}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Frequency</p>
-                  <p>{prescription.frequency}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Duration</p>
-                  <p>{prescription.duration}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Issued Date</p>
-                  <p>{formatDate(prescription.issuedDate)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Expiry Date</p>
-                  <p>{prescription.expiryDate ? formatDate(prescription.expiryDate) : "Not specified"}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm text-gray-500">Notes</p>
-                  <p>{prescription.notes || "No notes available"}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Patient Info */}
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle>Patient Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Patient Name</p>
-                  <p>
-                    <Link href={`/patients/${prescription.patient.id}`} className="text-blue-600 hover:text-blue-800">
-                      {prescription.patient.firstName} {prescription.patient.lastName}
-                    </Link>
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Prescribed By</p>
-                  <p>
-                    Dr. {prescription.doctor.firstName} {prescription.doctor.lastName}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Print Prescription */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex space-x-4">
-              <Button onClick={() => window.print()}>
-                Print Prescription
-              </Button>
-              <Button variant="outline" onClick={() => navigator.clipboard.writeText(
-                `Medication: ${prescription.medication}\n` +
-                `Dosage: ${prescription.dosage}\n` +
-                `Frequency: ${prescription.frequency}\n` +
-                `Duration: ${prescription.duration}\n` +
-                `Notes: ${prescription.notes || "None"}\n` +
-                `Prescribed by: Dr. ${prescription.doctor.firstName} ${prescription.doctor.lastName}`
-              )}>
-                Copy to Clipboard
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </AuthLayout>
   );

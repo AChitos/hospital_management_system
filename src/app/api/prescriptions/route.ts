@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/generated/prisma';
 import { verifyToken } from '@/lib/auth/auth';
 
-// GET all appointments for a doctor
+// GET all prescriptions
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
     // Get query parameters
     const url = new URL(request.url);
     const patientId = url.searchParams.get('patientId');
-    const status = url.searchParams.get('status');
     
     const prisma = new PrismaClient();
     
@@ -34,46 +33,49 @@ export async function GET(request: NextRequest) {
       // If patientId is provided, add it to the where clause
       if (patientId) {
         where.patientId = patientId;
+        
+        // Verify the doctor has access to this patient
+        const patient = await prisma.patient.findFirst({
+          where: {
+            id: patientId,
+            doctorId
+          }
+        });
+
+        if (!patient) {
+          return NextResponse.json({ error: 'Patient not found or access denied' }, { status: 404 });
+        }
       } else {
-        // If no patientId is provided, get all appointments for patients of this doctor
-        where.patient = {
-          doctorId
-        };
+        // If no patientId is provided, get all prescriptions for patients of this doctor
+        where.doctorId = doctorId;
       }
       
-      // If status is provided, add it to the where clause
-      if (status) {
-        where.status = status;
-      }
-      
-      const appointments = await prisma.appointment.findMany({
+      // Get all prescriptions
+      const prescriptions = await prisma.prescription.findMany({
         where,
         include: {
           patient: {
             select: {
               id: true,
               firstName: true,
-              lastName: true,
-            },
-          },
+              lastName: true
+            }
+          }
         },
-        orderBy: { appointmentDate: 'asc' },
+        orderBy: { issuedDate: 'desc' }
       });
 
-      return NextResponse.json(appointments);
+      return NextResponse.json(prescriptions);
     } finally {
       await prisma.$disconnect();
     }
   } catch (error) {
-    console.error('Error fetching appointments:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Error fetching prescriptions:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// POST create a new appointment
+// POST create a new prescription
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
@@ -88,53 +90,61 @@ export async function POST(request: NextRequest) {
     }
 
     const doctorId = payload.userId;
-
-    const body = await request.json();
-    const { patientId, appointmentDate, notes, status } = body;
-
-    if (!patientId || !appointmentDate) {
+    const data = await request.json();
+    const { patientId, medication, dosage, frequency, duration, notes, expiryDate } = data;
+    
+    if (!patientId || !medication || !dosage || !frequency) {
       return NextResponse.json(
-        { error: 'Patient ID and appointment date are required' },
+        { error: 'Patient ID, medication, dosage, and frequency are required' },
         { status: 400 }
       );
     }
-
+    
     const prisma = new PrismaClient();
     
     try {
-      // Verify the patient belongs to the doctor
+      // Verify the doctor has access to this patient
       const patient = await prisma.patient.findFirst({
         where: {
           id: patientId,
-          doctorId,
-        },
+          doctorId
+        }
       });
 
       if (!patient) {
-        return NextResponse.json(
-          { error: 'Patient not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'Patient not found or access denied' }, { status: 404 });
       }
 
-      const appointment = await prisma.appointment.create({
+      // Create new prescription
+      const prescription = await prisma.prescription.create({
         data: {
-          appointmentDate: new Date(appointmentDate),
+          medication,
+          dosage,
+          frequency,
+          duration,
           notes,
-          status: status || 'SCHEDULED',
+          issuedDate: new Date(),
+          expiryDate: expiryDate ? new Date(expiryDate) : null,
           patientId,
+          doctorId
         },
+        include: {
+          patient: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
       });
 
-      return NextResponse.json(appointment, { status: 201 });
+      return NextResponse.json(prescription, { status: 201 });
     } finally {
       await prisma.$disconnect();
     }
   } catch (error) {
-    console.error('Error creating appointment:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Error creating prescription:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

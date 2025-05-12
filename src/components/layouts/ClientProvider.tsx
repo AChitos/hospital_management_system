@@ -3,6 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/auth/authStore";
+import { ApiTokenProvider } from "@/components/providers/ApiTokenProvider";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -68,8 +69,8 @@ export default function ClientProvider({ children }: ClientProviderProps) {
   }, [token]);
 
   return (
-    <>
+    <ApiTokenProvider>
       {children}
-    </>
+    </ApiTokenProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/utils/db';
+import { verifyToken } from '@/lib/auth/auth';
 
 // GET a specific patient
 export async function GET(
@@ -7,7 +8,18 @@ export async function GET(
   { params }: { params: { patientId: string } }
 ) {
   try {
-    const doctorId = request.headers.get('X-User-ID');
+    // Verify authentication
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const doctorId = payload.userId;
     const { patientId } = params;
 
     if (!doctorId) {
@@ -58,15 +70,19 @@ export async function PUT(
   { params }: { params: { patientId: string } }
 ) {
   try {
-    const doctorId = request.headers.get('X-User-ID');
-    const { patientId } = params;
-
-    if (!doctorId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify authentication
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
+
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const doctorId = payload.userId;
+    const { patientId } = params;
 
     const body = await request.json();
     const { firstName, lastName, dateOfBirth, gender, contactNumber, email, address, bloodType, allergies } = body;
@@ -124,15 +140,19 @@ export async function DELETE(
   { params }: { params: { patientId: string } }
 ) {
   try {
-    const doctorId = request.headers.get('X-User-ID');
-    const { patientId } = params;
-
-    if (!doctorId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify authentication
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
+
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const doctorId = payload.userId;
+    const { patientId } = params;
 
     // Check if patient exists and belongs to doctor
     const existingPatient = await db.patient.findFirst({

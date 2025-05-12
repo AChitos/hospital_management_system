@@ -1,5 +1,8 @@
+"use server";
+
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/utils/db';
+import { PrismaClient } from '@/generated/prisma';
+import { verifyToken } from '@/lib/auth/auth';
 
 // GET all prescriptions for a patient
 export async function GET(
@@ -7,106 +10,122 @@ export async function GET(
   { params }: { params: { patientId: string } }
 ) {
   try {
-    const doctorId = request.headers.get('X-User-ID');
-    const { patientId } = params;
-
-    if (!doctorId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify authentication
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    // Verify the patient belongs to the doctor
-    const patient = await db.patient.findFirst({
-      where: {
-        id: patientId,
-        doctorId,
-      },
-    });
-
-    if (!patient) {
-      return NextResponse.json(
-        { error: 'Patient not found' },
-        { status: 404 }
-      );
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const prescriptions = await db.prescription.findMany({
-      where: { patientId },
-      orderBy: { issuedDate: 'desc' },
-    });
+    const doctorId = payload.userId;
+    const patientId = params.patientId;
+    const prisma = new PrismaClient();
+    
+    try {
+      // Verify the doctor has access to this patient
+      const patient = await prisma.patient.findFirst({
+        where: {
+          id: patientId,
+          doctorId
+        }
+      });
 
-    return NextResponse.json(prescriptions);
+      if (!patient) {
+        return NextResponse.json({ error: 'Patient not found or access denied' }, { status: 404 });
+      }
+
+      // Get all prescriptions for this patient
+      const prescriptions = await prisma.prescription.findMany({
+        where: { patientId },
+        include: {
+          patient: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
+          }
+        },
+        orderBy: { issuedDate: 'desc' }
+      });
+
+      return NextResponse.json(prescriptions);
+    } finally {
+      await prisma.$disconnect();
+    }
   } catch (error) {
     console.error('Error fetching prescriptions:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-// POST create a new prescription for a patient
+// POST create a new prescription
 export async function POST(
   request: NextRequest,
   { params }: { params: { patientId: string } }
 ) {
   try {
-    const doctorId = request.headers.get('X-User-ID');
-    const { patientId } = params;
-
-    if (!doctorId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // Verify authentication
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    // Verify the patient belongs to the doctor
-    const patient = await db.patient.findFirst({
-      where: {
-        id: patientId,
-        doctorId,
-      },
-    });
-
-    if (!patient) {
-      return NextResponse.json(
-        { error: 'Patient not found' },
-        { status: 404 }
-      );
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { medication, dosage, frequency, duration, notes, expiryDate } = body;
+    const doctorId = payload.userId;
+    const patientId = params.patientId;
+    const data = await request.json();
+    const prisma = new PrismaClient();
+    
+    try {
+      // Verify the doctor has access to this patient
+      const patient = await prisma.patient.findFirst({
+        where: {
+          id: patientId,
+          doctorId
+        }
+      });
 
-    if (!medication || !dosage || !frequency || !duration) {
-      return NextResponse.json(
-        { error: 'Medication, dosage, frequency, and duration are required' },
-        { status: 400 }
-      );
+      if (!patient) {
+        return NextResponse.json({ error: 'Patient not found or access denied' }, { status: 404 });
+      }
+
+      // Create new prescription
+      const prescription = await prisma.prescription.create({
+        data: {
+          medication: data.medication,
+          dosage: data.dosage,
+          frequency: data.frequency,
+          duration: data.duration,
+          notes: data.notes,
+          issuedDate: new Date(),
+          expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+          patientId,
+          doctorId
+        },
+        include: {
+          patient: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      });
+
+      return NextResponse.json(prescription, { status: 201 });
+    } finally {
+      await prisma.$disconnect();
     }
-
-    const prescription = await db.prescription.create({
-      data: {
-        medication,
-        dosage,
-        frequency,
-        duration,
-        notes,
-        expiryDate: expiryDate ? new Date(expiryDate) : null,
-        patientId,
-        doctorId,
-      },
-    });
-
-    return NextResponse.json(prescription, { status: 201 });
   } catch (error) {
     console.error('Error creating prescription:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
