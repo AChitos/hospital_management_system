@@ -204,10 +204,12 @@ export default function PatientDetailsPage() {
                 {patient.firstName} {patient.lastName}
               </h1>
             </div>
-            <Button>
-              <PencilIcon className="h-4 w-4 mr-2" />
-              Edit Patient
-            </Button>
+            <Link href={`/patients/${patientId}/edit`}>
+              <Button>
+                <PencilIcon className="h-4 w-4 mr-2" />
+                Edit Patient
+              </Button>
+            </Link>
           </div>
         </div>
 
