@@ -6,7 +6,7 @@
 echo "Updating API routes..."
 mv -f "/Users/andreaschitos1/hospital_management_system/src/app/api/appointments/route.ts.new" "/Users/andreaschitos1/hospital_management_system/src/app/api/appointments/route.ts" 
 mv -f "/Users/andreaschitos1/hospital_management_system/src/app/api/appointments/[appointmentId]/route.ts.new" "/Users/andreaschitos1/hospital_management_system/src/app/api/appointments/[appointmentId]/route.ts"
-mv -f "/Users/andreaschitos1/hospital_management_system/src/app/api/prescriptions/[patientId]/route.ts.new" "/Users/andreaschitos1/hospital_management_system/src/app/api/prescriptions/[patientId]/route.ts"
+mv -f "/Users/andreaschitos1/hospital_management_system/src/app/api/prescriptions/[patient]/route.ts.new" "/Users/andreaschitos1/hospital_management_system/src/app/api/prescriptions/[patient]/route.ts"
 
 # Rename updated page files
 echo "Updating pages..."

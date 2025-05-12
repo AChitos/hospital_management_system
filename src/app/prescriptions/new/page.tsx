@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/utils/apiClient";
 
 interface Patient {
   id: string;
@@ -48,18 +49,21 @@ export default function NewPrescriptionPage() {
 
   // Fetch patients for selection
   useEffect(() => {
-    const fetchPatients = () => {
-      // In a real app, we would fetch from an API
-      // Mock data for now
-      setTimeout(() => {
-        setPatients([
-          { id: "1", firstName: "John", lastName: "Doe" },
-          { id: "2", firstName: "Jane", lastName: "Smith" },
-          { id: "3", firstName: "Michael", lastName: "Johnson" },
-          { id: "4", firstName: "Emily", lastName: "Williams" },
-          { id: "5", firstName: "Robert", lastName: "Brown" },
-        ]);
-      }, 500);
+    const fetchPatients = async () => {
+      try {
+        const response = await api.get<Patient[]>('/api/patients');
+        
+        if (response.error) {
+          console.error("Error fetching patients:", response.error);
+          return;
+        }
+        
+        if (response.data) {
+          setPatients(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
     };
 
     fetchPatients();
@@ -69,15 +73,17 @@ export default function NewPrescriptionPage() {
     setIsLoading(true);
     
     try {
-      // In a real app, we would send this to an API
-      console.log("Prescription data:", data);
+      // Send the data to our API
+      const response = await api.post<any>(`/api/prescriptions/${data.patientId}`, data);
       
-      // Mock successful submission
-      setTimeout(() => {
+      if (response.error) {
+        console.error("Error creating prescription:", response.error);
         setIsLoading(false);
-        router.push("/prescriptions");
-      }, 1000);
+        return;
+      }
       
+      // Redirect to prescriptions page on success
+      router.push("/prescriptions");
     } catch (error) {
       console.error("Error creating prescription:", error);
       setIsLoading(false);

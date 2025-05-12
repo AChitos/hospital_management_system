@@ -8,6 +8,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
 
 interface MedicalRecord {
   id: string;
@@ -41,33 +42,19 @@ export default function MedicalRecordDetailsPage() {
   useEffect(() => {
     const fetchMedicalRecordData = async () => {
       try {
-        // In a real app, we'd fetch from an API endpoint
-        // For now using mock data
-        setTimeout(() => {
-          // Mock medical record data
-          setMedicalRecord({
-            id: recordId,
-            recordDate: "2025-05-10T09:00:00Z",
-            diagnosis: "Hypertension",
-            symptoms: "Headache, dizziness, occasional chest discomfort",
-            vitalSigns: "BP: 150/95, HR: 88, RR: 16, Temp: 37.1°C",
-            notes: "Patient presented with elevated blood pressure readings over the past month. Reports increased stress at work and irregular sleep patterns.",
-            treatmentPlan: "1. Prescribed Lisinopril 10mg once daily\n2. Recommended sodium-restricted diet\n3. Daily exercise minimum 30 minutes\n4. Stress reduction techniques discussed",
-            followUpDate: "2025-06-10T09:00:00Z",
-            patient: {
-              id: "1",
-              firstName: "John",
-              lastName: "Doe",
-            },
-            doctor: {
-              id: "doctor-1",
-              firstName: "Jane",
-              lastName: "Smith",
-            }
-          });
-          
+        // Fetch medical record from API
+        const response = await api.get<MedicalRecord>(`/api/medical-records/${recordId}`);
+        
+        if (response.error) {
+          console.error("Error fetching medical record:", response.error);
           setIsLoading(false);
-        }, 500);
+          return;
+        }
+        
+        if (response.data) {
+          setMedicalRecord(response.data);
+        }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching medical record data:", error);
         setIsLoading(false);
