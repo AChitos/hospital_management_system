@@ -36,6 +36,21 @@ class ApiClient {
     }
   }
 
+  async patch<T>(url: string, data: any): Promise<ApiResponse<T>> {
+    try {
+      const headers = this.getHeaders();
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(data)
+      });
+      return this.handleResponse<T>(response);
+    } catch (error) {
+      console.error('API PATCH error:', error);
+      return { status: 500, error: 'Network error' };
+    }
+  }
+
   async put<T>(url: string, data: any): Promise<ApiResponse<T>> {
     try {
       const headers = this.getHeaders();
