@@ -42,7 +42,12 @@ export async function GET(
       const prescriptions = await prisma.prescription.findMany({
         where: { patientId },
         include: {
-          medications: true
+          doctor: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
+          }
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -92,25 +97,25 @@ export async function POST(
         return NextResponse.json({ error: 'Patient not found or access denied' }, { status: 404 });
       }
 
-      // Create new prescription with medications
+      // Create new prescription
       const newPrescription = await prisma.prescription.create({
         data: {
           patientId,
           doctorId,
+          medication: data.medication,
+          dosage: data.dosage,
+          frequency: data.frequency,
+          duration: data.duration,
           notes: data.notes || '',
-          expirationDate: data.expirationDate ? new Date(data.expirationDate) : null,
-          medications: {
-            create: data.medications.map((med: any) => ({
-              name: med.name,
-              dosage: med.dosage,
-              frequency: med.frequency,
-              duration: med.duration,
-              notes: med.notes || ''
-            }))
-          }
+          expiryDate: data.expiryDate ? new Date(data.expiryDate) : null
         },
         include: {
-          medications: true
+          doctor: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
+          }
         }
       });
 

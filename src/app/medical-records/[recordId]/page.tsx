@@ -24,7 +24,7 @@ interface MedicalRecord {
     firstName: string;
     lastName: string;
   };
-  doctor: {
+  doctor?: {
     id: string;
     firstName: string;
     lastName: string;
@@ -181,7 +181,9 @@ export default function MedicalRecordDetailsPage() {
                 <div>
                   <p className="text-sm text-gray-500">Attending Physician</p>
                   <p>
-                    Dr. {medicalRecord.doctor.firstName} {medicalRecord.doctor.lastName}
+                    {medicalRecord.doctor ? 
+                      `Dr. ${medicalRecord.doctor.firstName} ${medicalRecord.doctor.lastName}` : 
+                      "Not assigned"}
                   </p>
                 </div>
               </div>

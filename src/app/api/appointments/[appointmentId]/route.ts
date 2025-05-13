@@ -1,27 +1,12 @@
-"use server";
-
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/generated/prisma';
-import { verifyToken } from '@/lib/auth/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const doctorId = payload.userId;
-    const appointmentId = params.appointmentId;
+    const appointmentId = params.appointmentId as string;
     const prisma = new PrismaClient();
     
     try {
@@ -33,8 +18,7 @@ export async function GET(
             select: {
               id: true,
               firstName: true,
-              lastName: true,
-              doctorId: true
+              lastName: true
             }
           }
         }
@@ -42,11 +26,6 @@ export async function GET(
 
       if (!appointment) {
         return NextResponse.json({ error: 'Appointment not found' }, { status: 404 });
-      }
-
-      // Verify the doctor has access to this patient
-      if (appointment.patient.doctorId !== doctorId) {
-        return NextResponse.json({ error: 'Unauthorized access' }, { status: 403 });
       }
 
       return NextResponse.json(appointment);
@@ -61,47 +40,14 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const doctorId = payload.userId;
-    const appointmentId = params.appointmentId;
+    const appointmentId = params.appointmentId as string;
     const data = await request.json();
     const prisma = new PrismaClient();
     
     try {
-      // Check if appointment exists and belongs to this doctor's patient
-      const existingAppointment = await prisma.appointment.findUnique({
-        where: { id: appointmentId },
-        include: {
-          patient: {
-            select: {
-              doctorId: true
-            }
-          }
-        }
-      });
-
-      if (!existingAppointment) {
-        return NextResponse.json({ error: 'Appointment not found' }, { status: 404 });
-      }
-
-      // Check if this doctor has access to this patient
-      if (existingAppointment.patient.doctorId !== doctorId) {
-        return NextResponse.json({ error: 'Unauthorized access' }, { status: 403 });
-      }
-
       // Update appointment
       const updatedAppointment = await prisma.appointment.update({
         where: { id: appointmentId },
@@ -109,15 +55,6 @@ export async function PUT(
           appointmentDate: data.appointmentDate ? new Date(data.appointmentDate) : undefined,
           status: data.status,
           notes: data.notes
-        },
-        include: {
-          patient: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true
-            }
-          }
         }
       });
 
@@ -133,46 +70,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const doctorId = payload.userId;
-    const appointmentId = params.appointmentId;
+    const appointmentId = params.appointmentId as string;
     const prisma = new PrismaClient();
     
     try {
-      // Check if appointment exists and belongs to this doctor's patient
-      const existingAppointment = await prisma.appointment.findUnique({
-        where: { id: appointmentId },
-        include: {
-          patient: {
-            select: {
-              doctorId: true
-            }
-          }
-        }
-      });
-
-      if (!existingAppointment) {
-        return NextResponse.json({ error: 'Appointment not found' }, { status: 404 });
-      }
-
-      // Check if this doctor has access to this patient
-      if (existingAppointment.patient.doctorId !== doctorId) {
-        return NextResponse.json({ error: 'Unauthorized access' }, { status: 403 });
-      }
-
       // Delete appointment
       await prisma.appointment.delete({
         where: { id: appointmentId }

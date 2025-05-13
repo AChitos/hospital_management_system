@@ -23,11 +23,15 @@ export default function ClientProvider({ children }: ClientProviderProps) {
         typeof args[0] === 'string' &&
         (args[0].includes('Expected server HTML to contain a matching') ||
          args[0].includes('Hydration failed because') ||
-         args[0].includes('did not match'))
+         args[0].includes('did not match') ||
+         args[0].includes('Text content does not match'))
       ) {
         return;
       }
-      originalConsoleError(...args);
+      // Make sure we don't call this if args is empty or undefined
+      if (args && args.length > 0) {
+        originalConsoleError(...args);
+      }
     };
 
     return () => {

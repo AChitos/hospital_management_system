@@ -155,7 +155,8 @@ exports.Prisma.MedicalRecordScalarFieldEnum = {
   followUpDate: 'followUpDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  patientId: 'patientId'
+  patientId: 'patientId',
+  doctorId: 'doctorId'
 };
 
 exports.Prisma.PrescriptionScalarFieldEnum = {

@@ -51,8 +51,8 @@ export async function GET(
         return NextResponse.json({ error: 'Prescription not found' }, { status: 404 });
       }
 
-      // Verify the doctor has access to this patient
-      if (prescription.patient.doctorId !== doctorId) {
+      // Verify the doctor has access to this prescription
+      if (prescription.doctorId !== doctorId && prescription.patient.doctorId !== doctorId) {
         return NextResponse.json({ error: 'Unauthorized access' }, { status: 403 });
       }
 

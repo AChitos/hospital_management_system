@@ -4,11 +4,11 @@ import { db } from '@/lib/utils/db';
 // GET all medical records for a patient
 export async function GET(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
   try {
     const doctorId = request.headers.get('X-User-ID');
-    const { patientId } = params;
+    const patientId = params.patientId as string;
 
     if (!doctorId) {
       return NextResponse.json(
@@ -50,11 +50,11 @@ export async function GET(
 // POST create a new medical record for a patient
 export async function POST(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
   try {
     const doctorId = request.headers.get('X-User-ID');
-    const { patientId } = params;
+    const patientId = params.patientId as string;
 
     if (!doctorId) {
       return NextResponse.json(
@@ -83,7 +83,7 @@ export async function POST(
     const newMedicalRecord = await db.medicalRecord.create({
       data: {
         patientId,
-        doctorId,
+        doctorId, // Now correctly maps to the doctorId field in the schema
         diagnosis: data.diagnosis,
         symptoms: data.symptoms,
         notes: data.notes,

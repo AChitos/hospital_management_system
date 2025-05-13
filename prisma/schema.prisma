@@ -23,6 +23,7 @@ model User {
   updatedAt      DateTime        @updatedAt
   patients       Patient[]
   prescriptions  Prescription[]
+  medicalRecords MedicalRecord[]
 }
 
 // Patient model
@@ -60,6 +61,8 @@ model MedicalRecord {
   updatedAt      DateTime      @updatedAt
   patient        Patient       @relation(fields: [patientId], references: [id])
   patientId      String
+  doctor         User?         @relation(fields: [doctorId], references: [id])
+  doctorId       String?
 }
 
 // Prescription model

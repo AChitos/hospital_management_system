@@ -24,7 +24,7 @@ interface Prescription {
     firstName: string;
     lastName: string;
   };
-  doctor: {
+  doctor?: {
     id: string;
     firstName: string;
     lastName: string;
@@ -214,7 +214,11 @@ export default function PrescriptionDetailsPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Prescribed By</h3>
-                  <p>Dr. {prescription.doctor.firstName} {prescription.doctor.lastName}</p>
+                  <p>
+                    {prescription.doctor ? 
+                      `Dr. ${prescription.doctor.firstName} ${prescription.doctor.lastName}` : 
+                      "Not assigned"}
+                  </p>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-start border-t pt-4">
