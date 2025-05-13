@@ -12,98 +12,88 @@ import StatCard from "@/components/dashboard/StatCard";
 import ActivityChart from "@/components/dashboard/ActivityChart";
 import RecentPatients from "@/components/dashboard/RecentPatients";
 import UpcomingAppointments from "@/components/dashboard/UpcomingAppointments";
+import { api } from "@/lib/utils/apiClient";
+
+// Define interfaces for dashboard data
+interface Patient {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  updatedAt: string;
+}
+
+interface Appointment {
+  id: string;
+  appointmentDate: string;
+  status: string;
+  notes?: string;
+  patient: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+}
+
+interface TrendData {
+  value: number;
+  isPositive: boolean;
+}
+
+interface DashboardStats {
+  totalPatients: number;
+  scheduledAppointments: number;
+  activePrescriptions: number;
+  medicalRecords: number;
+  trends?: {
+    patients?: TrendData;
+    appointments?: TrendData;
+  };
+}
+
+interface ActivityItem {
+  name: string;
+  value: number;
+}
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
     scheduledAppointments: 0,
     activePrescriptions: 0,
     medicalRecords: 0,
   });
-  const [patients, setPatients] = useState([]);
-  const [appointments, setAppointments] = useState([]);
-  const [activityData, setActivityData] = useState([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [activityData, setActivityData] = useState<ActivityItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      setIsLoading(true);
       try {
-        // In a real app, we would fetch from actual API endpoints
-        // For now, setting mock data after a delay
-        setTimeout(() => {
-          setStats({
-            totalPatients: 48,
-            scheduledAppointments: 12,
-            activePrescriptions: 35,
-            medicalRecords: 94,
-          });
-
-          setPatients([
-            {
-              id: "1",
-              firstName: "John",
-              lastName: "Doe",
-              dateOfBirth: "1980-05-15",
-              gender: "Male",
-              updatedAt: "2025-05-10T09:30:00Z",
-            },
-            {
-              id: "2",
-              firstName: "Jane",
-              lastName: "Smith",
-              dateOfBirth: "1992-08-22",
-              gender: "Female",
-              updatedAt: "2025-05-09T14:20:00Z",
-            },
-            {
-              id: "3",
-              firstName: "Michael",
-              lastName: "Johnson",
-              dateOfBirth: "1975-11-03",
-              gender: "Male",
-              updatedAt: "2025-05-08T11:15:00Z",
-            },
-          ]);
-
-          setAppointments([
-            {
-              id: "1",
-              appointmentDate: "2025-05-13T10:30:00Z",
-              status: "SCHEDULED",
-              patient: {
-                id: "1",
-                firstName: "John",
-                lastName: "Doe",
-              },
-              notes: "Pre-surgery consultation",
-            },
-            {
-              id: "2",
-              appointmentDate: "2025-05-14T14:00:00Z",
-              status: "SCHEDULED",
-              patient: {
-                id: "2",
-                firstName: "Jane",
-                lastName: "Smith",
-              },
-              notes: "Follow-up appointment",
-            },
-          ]);
-
-          setActivityData([
-            { name: "Mon", value: 10 },
-            { name: "Tue", value: 15 },
-            { name: "Wed", value: 8 },
-            { name: "Thu", value: 12 },
-            { name: "Fri", value: 20 },
-            { name: "Sat", value: 5 },
-            { name: "Sun", value: 3 },
-          ]);
-
+        // Fetch real data from our API
+        const response = await api.get('/api/dashboard');
+        
+        if (response.error) {
+          setError(response.error);
           setIsLoading(false);
-        }, 1000);
+          return;
+        }
+        
+        if (response.data) {
+          setStats(response.data.stats);
+          setPatients(response.data.recentPatients);
+          setAppointments(response.data.upcomingAppointments);
+          setActivityData(response.data.activityData);
+        }
+        
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        setError("Failed to load dashboard data");
         setIsLoading(false);
       }
     };
@@ -111,64 +101,93 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  if (isLoading) {
-    return (
-      <AuthLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="h-8 w-8 mx-auto border-4 border-t-blue-600 border-b-gray-200 border-l-gray-200 border-r-gray-200 rounded-full animate-spin"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading dashboard...</p>
-          </div>
-        </div>
-      </AuthLayout>
-    );
-  }
+  // Fallback data in case API call fails
+  const useFallbackData = () => {
+    if (activityData.length === 0) {
+      return [
+        { name: "Mon", value: 3 },
+        { name: "Tue", value: 4 },
+        { name: "Wed", value: 2 },
+        { name: "Thu", value: 5 },
+        { name: "Fri", value: 7 },
+        { name: "Sat", value: 2 },
+        { name: "Sun", value: 1 },
+      ];
+    }
+    return activityData;
+  };
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-gray-500">Welcome to your medical management system.</p>
-        </div>
+      <div className="bg-gray-50 min-h-screen py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+            <p className="text-gray-600 mt-2">Welcome to your healthcare management system</p>
+          </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-5 mb-8 rounded-lg shadow-sm flex items-center">
+            <svg className="w-6 h-6 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 01-1-1v-4a1 1 0 112 0v4a1 1 0 01-1 1z" clipRule="evenodd" />
+            </svg>
+            <p className="font-medium">{error}</p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <StatCard
             title="Total Patients"
             value={stats.totalPatients}
             icon={UserGroupIcon}
-            trend={{ value: 12, isPositive: true }}
+            trend={stats.trends?.patients}
+            isLoading={isLoading}
           />
           <StatCard
             title="Scheduled Appointments"
             value={stats.scheduledAppointments}
             icon={CalendarIcon}
-            trend={{ value: 5, isPositive: true }}
+            trend={stats.trends?.appointments}
+            isLoading={isLoading}
           />
           <StatCard
             title="Active Prescriptions"
             value={stats.activePrescriptions}
             icon={ClipboardDocumentListIcon}
-            trend={{ value: 3, isPositive: false }}
+            isLoading={isLoading}
           />
           <StatCard
             title="Medical Records"
             value={stats.medicalRecords}
             icon={ClipboardDocumentCheckIcon}
-            trend={{ value: 8, isPositive: true }}
+            isLoading={isLoading}
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <ActivityChart
-            title="Weekly Patient Activity"
-            data={activityData}
-          />
-          <RecentPatients patients={patients} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2">
+            <ActivityChart 
+              title="Weekly Appointment Activity"
+              data={useFallbackData()} 
+              color="#3b82f6"
+              isLoading={isLoading}
+            />
+          </div>
+          
+          <div className="lg:col-span-1">
+            <RecentPatients 
+              patients={patients} 
+              isLoading={isLoading} 
+            />
+          </div>
         </div>
 
-        <div>
-          <UpcomingAppointments appointments={appointments} />
+        <div className="grid grid-cols-1 mb-8">
+          <UpcomingAppointments 
+            appointments={appointments} 
+            isLoading={isLoading} 
+          />
+        </div>
         </div>
       </div>
     </AuthLayout>

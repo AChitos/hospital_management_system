@@ -47,12 +47,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
   return (
     <div
       className={cn(
-        "fixed left-0 top-0 z-20 h-full w-64 bg-white border-r shadow-sm transition-transform duration-300 transform lg:translate-x-0 lg:relative pt-16",
+        "fixed left-0 top-0 z-20 h-full w-72 bg-white border-r shadow-lg transition-transform duration-300 transform lg:translate-x-0 lg:relative pt-16",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
       <div className="flex flex-col h-full p-4">
-        <nav className="space-y-1 flex-1">
+        <nav className="space-y-3 flex-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             
@@ -61,19 +61,22 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center px-4 py-3 text-sm font-medium rounded-md group",
+                  "flex items-center px-5 py-3.5 rounded-lg group transition-all duration-200 relative",
                   isActive
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-blue-100 text-blue-700 font-semibold shadow-sm"
+                    : "text-gray-700 hover:bg-gray-50 hover:shadow-sm"
                 )}
               >
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-blue-600 rounded-r-full" />
+                )}
                 <item.icon
                   className={cn(
-                    "mr-3 h-5 w-5",
-                    isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-500"
+                    "mr-4 h-6 w-6",
+                    isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
                   )}
                 />
-                {item.name}
+                <span className="text-base">{item.name}</span>
               </Link>
             );
           })}

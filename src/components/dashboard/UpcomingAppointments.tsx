@@ -19,9 +19,10 @@ interface Appointment {
 
 interface UpcomingAppointmentsProps {
   appointments: Appointment[];
+  isLoading?: boolean;
 }
 
-export default function UpcomingAppointments({ appointments }: UpcomingAppointmentsProps) {
+export default function UpcomingAppointments({ appointments, isLoading = false }: UpcomingAppointmentsProps) {
   // Status badge styling
   const statusStyles: Record<string, string> = {
     SCHEDULED: "bg-blue-100 text-blue-800",
@@ -30,17 +31,31 @@ export default function UpcomingAppointments({ appointments }: UpcomingAppointme
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-medium">Upcoming Appointments</CardTitle>
+    <Card className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
+      <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-blue-50 to-white border-b pb-4">
+        <CardTitle className="text-lg font-semibold text-gray-800">Upcoming Appointments</CardTitle>
         <Link href="/appointments">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="hover:bg-blue-50 transition-colors">
             View All
           </Button>
         </Link>
       </CardHeader>
       <CardContent>
-        {appointments.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-4 animate-pulse">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between p-3 border-b last:border-0">
+                <div className="flex items-center space-x-3">
+                  <div className="h-4 bg-gray-200 rounded w-48"></div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="h-4 bg-gray-200 rounded w-32"></div>
+                  <div className="h-6 bg-gray-100 rounded-full w-20"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : appointments.length === 0 ? (
           <p className="text-center py-4 text-gray-500">No upcoming appointments</p>
         ) : (
           <div className="space-y-4">
