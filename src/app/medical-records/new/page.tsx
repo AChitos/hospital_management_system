@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import Select from 'react-select';
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -16,6 +17,11 @@ interface Patient {
   id: string;
   firstName: string;
   lastName: string;
+}
+
+interface PatientOption {
+  value: string;
+  label: string;
 }
 
 interface MedicalRecordFormData {
@@ -36,11 +42,13 @@ export default function NewMedicalRecordPage() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [patientOptions, setPatientOptions] = useState<PatientOption[]>([]);
 
   const {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
   } = useForm<MedicalRecordFormData>({
     defaultValues: {
@@ -53,13 +61,23 @@ export default function NewMedicalRecordPage() {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const response = await api.get('/api/patients');
+        const response = await api.get<Patient[]>('/api/patients');
         
         if (response.error) {
           throw new Error(response.error);
         }
         
-        setPatients(response.data || []);
+        if (response.data) {
+          setPatients(response.data);
+          
+          // Convert patients to options format for react-select
+          const options = response.data.map(patient => ({
+            value: patient.id,
+            label: `${patient.firstName} ${patient.lastName}`
+          }));
+          
+          setPatientOptions(options);
+        }
       } catch (error) {
         console.error("Error fetching patients:", error);
       }
@@ -120,18 +138,35 @@ export default function NewMedicalRecordPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="patientId">Patient</Label>
-                  <select
-                    id="patientId"
-                    className="w-full p-2 border rounded-md"
-                    {...register("patientId", { required: "Please select a patient" })}
-                  >
-                    <option value="">Select Patient</option>
-                    {patients.map((patient) => (
-                      <option key={patient.id} value={patient.id}>
-                        {patient.firstName} {patient.lastName}
-                      </option>
-                    ))}
-                  </select>
+                  <Controller
+                    name="patientId"
+                    control={control}
+                    rules={{ required: "Please select a patient" }}
+                    render={({ field }) => (
+                      <Select
+                        inputId="patientId"
+                        options={patientOptions}
+                        placeholder="Search for patient by name..."
+                        isClearable
+                        className="react-select"
+                        classNamePrefix="react-select"
+                        value={patientOptions.find(option => option.value === field.value) || null}
+                        onChange={(option) => field.onChange(option ? option.value : '')}
+                        styles={{
+                          control: (provided) => ({
+                            ...provided,
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '0.375rem',
+                            padding: '1px',
+                            boxShadow: 'none',
+                            '&:hover': {
+                              borderColor: '#cbd5e0',
+                            },
+                          }),
+                        }}
+                      />
+                    )}
+                  />
                   {errors.patientId && (
                     <p className="text-red-500 text-sm mt-1">{errors.patientId.message}</p>
                   )}
