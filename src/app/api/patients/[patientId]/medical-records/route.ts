@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/utils/db';
+import { verifyToken } from '@/lib/auth/auth';
 
 // GET all medical records for a patient
 export async function GET(
@@ -7,7 +8,24 @@ export async function GET(
   { params }: { params: Record<string, string | string[]> }
 ) {
   try {
-    const doctorId = request.headers.get('X-User-ID');
+    // Get doctorId from Authorization header (for consistency with appointments)
+    let doctorId = request.headers.get('X-User-ID');
+    
+    // If X-User-ID header is not present, try to get from Authorization token
+    if (!doctorId) {
+      const token = request.headers.get('authorization')?.split(' ')[1];
+      if (!token) {
+        return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      }
+      
+      const payload = await verifyToken(token);
+      if (!payload) {
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      }
+      
+      doctorId = payload.userId;
+    }
+    
     const patientId = params.patientId as string;
 
     if (!doctorId) {
@@ -53,7 +71,24 @@ export async function POST(
   { params }: { params: Record<string, string | string[]> }
 ) {
   try {
-    const doctorId = request.headers.get('X-User-ID');
+    // Get doctorId from Authorization header (for consistency with appointments)
+    let doctorId = request.headers.get('X-User-ID');
+    
+    // If X-User-ID header is not present, try to get from Authorization token
+    if (!doctorId) {
+      const token = request.headers.get('authorization')?.split(' ')[1];
+      if (!token) {
+        return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      }
+      
+      const payload = await verifyToken(token);
+      if (!payload) {
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      }
+      
+      doctorId = payload.userId;
+    }
+    
     const patientId = params.patientId as string;
 
     if (!doctorId) {

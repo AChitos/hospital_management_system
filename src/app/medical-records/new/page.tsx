@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/utils/apiClient";
 
 interface Patient {
   id: string;
@@ -50,18 +51,18 @@ export default function NewMedicalRecordPage() {
 
   // Fetch patients for selection
   useEffect(() => {
-    const fetchPatients = () => {
-      // In a real app, we would fetch from an API
-      // Mock data for now
-      setTimeout(() => {
-        setPatients([
-          { id: "1", firstName: "John", lastName: "Doe" },
-          { id: "2", firstName: "Jane", lastName: "Smith" },
-          { id: "3", firstName: "Michael", lastName: "Johnson" },
-          { id: "4", firstName: "Emily", lastName: "Williams" },
-          { id: "5", firstName: "Robert", lastName: "Brown" },
-        ]);
-      }, 500);
+    const fetchPatients = async () => {
+      try {
+        const response = await api.get('/api/patients');
+        
+        if (response.error) {
+          throw new Error(response.error);
+        }
+        
+        setPatients(response.data || []);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
     };
 
     fetchPatients();
@@ -71,14 +72,24 @@ export default function NewMedicalRecordPage() {
     setIsLoading(true);
     
     try {
-      // In a real app, we would send this to an API
-      console.log("Medical record data:", data);
+      // Send data to the API using the api client
+      const response = await api.post(`/api/patients/${data.patientId}/medical-records`, {
+        patientId: data.patientId,
+        recordDate: new Date(data.recordDate).toISOString(),
+        diagnosis: data.diagnosis,
+        symptoms: data.symptoms || null,
+        vitalSigns: data.vitalSigns || null,
+        notes: data.notes || null,
+        treatmentPlan: data.treatmentPlan || null,
+        followUpDate: data.followUpDate ? new Date(data.followUpDate).toISOString() : null
+      });
       
-      // Mock successful submission
-      setTimeout(() => {
-        setIsLoading(false);
-        router.push("/medical-records");
-      }, 1000);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      setIsLoading(false);
+      router.push("/medical-records");
       
     } catch (error) {
       console.error("Error creating medical record:", error);

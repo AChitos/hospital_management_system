@@ -73,6 +73,28 @@ class ApiClient {
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+      
+      // Add user ID from token if possible (for server-side compatibility)
+      try {
+        // Extract user ID from JWT token if available
+        // This is a cleaner approach than trying to access Zustand store
+        // which may not be available in all contexts
+        if (token && typeof window !== 'undefined') {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            try {
+              const payload = JSON.parse(atob(tokenParts[1]));
+              if (payload && payload.userId) {
+                headers['X-User-ID'] = payload.userId;
+              }
+            } catch (e) {
+              // Silent fail if token parsing fails
+            }
+          }
+        }
+      } catch (e) {
+        // Don't log anything to avoid console spam
+      }
     }
 
     return headers;

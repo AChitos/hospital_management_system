@@ -11,6 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatDate } from "@/lib/utils/helpers";
+import { api } from "@/lib/utils/apiClient";
 
 interface Patient {
   id: string;
@@ -39,18 +40,20 @@ export default function AppointmentSchedulingPage() {
 
   // Fetch patients for selection
   useEffect(() => {
-    const fetchPatients = () => {
-      // In a real app, we would fetch from an API
-      // Mock data for now
-      setTimeout(() => {
-        setPatients([
-          { id: "1", firstName: "John", lastName: "Doe" },
-          { id: "2", firstName: "Jane", lastName: "Smith" },
-          { id: "3", firstName: "Michael", lastName: "Johnson" },
-          { id: "4", firstName: "Emily", lastName: "Williams" },
-          { id: "5", firstName: "Robert", lastName: "Brown" },
-        ]);
-      }, 500);
+    const fetchPatients = async () => {
+      try {
+        const response = await api.get<Patient[]>('/api/patients');
+        
+        if (response.error) {
+          throw new Error(response.error);
+        }
+        
+        if (response.data) {
+          setPatients(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
     };
 
     fetchPatients();
@@ -63,17 +66,20 @@ export default function AppointmentSchedulingPage() {
       // Combine date and time
       const combinedDateTime = new Date(`${data.appointmentDate}T${data.appointmentTime}:00`);
       
-      // In a real app, we would send this to an API
-      console.log({
-        ...data,
+      // Send data to the API using the api client
+      const response = await api.post('/api/appointments', {
+        patientId: data.patientId,
         appointmentDate: combinedDateTime.toISOString(),
+        notes: data.notes,
+        status: 'SCHEDULED'
       });
       
-      // Mock successful submission
-      setTimeout(() => {
-        setIsLoading(false);
-        router.push("/appointments");
-      }, 1000);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      setIsLoading(false);
+      router.push("/appointments");
       
     } catch (error) {
       console.error("Error scheduling appointment:", error);
