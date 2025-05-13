@@ -8,12 +8,15 @@ export async function GET(
   { params }: { params: Record<string, string | string[]> }
 ) {
   try {
-    // Get doctorId from Authorization header (for consistency with appointments)
+    // Get doctorId from X-User-ID header first
     let doctorId = request.headers.get('X-User-ID');
     
     // If X-User-ID header is not present, try to get from Authorization token
     if (!doctorId) {
-      const token = request.headers.get('authorization')?.split(' ')[1];
+      // Check for both lowercase and proper-case Authorization header
+      const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+      const token = authHeader?.split(' ')[1];
+      
       if (!token) {
         return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
       }
@@ -71,12 +74,15 @@ export async function POST(
   { params }: { params: Record<string, string | string[]> }
 ) {
   try {
-    // Get doctorId from Authorization header (for consistency with appointments)
+    // Get doctorId from X-User-ID header first
     let doctorId = request.headers.get('X-User-ID');
     
     // If X-User-ID header is not present, try to get from Authorization token
     if (!doctorId) {
-      const token = request.headers.get('authorization')?.split(' ')[1];
+      // Check for both lowercase and proper-case Authorization header
+      const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+      const token = authHeader?.split(' ')[1];
+      
       if (!token) {
         return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
       }
