@@ -97,7 +97,7 @@ export default function ProfilePage() {
     
     try {
       // In a real app, we would update via API
-      console.log("Updating password");
+      console.log("Updating password", data);
       
       // Mock successful update
       setTimeout(() => {

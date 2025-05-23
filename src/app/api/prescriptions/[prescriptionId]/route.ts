@@ -6,7 +6,7 @@ import { verifyToken } from '@/lib/auth/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { prescriptionId: string } }
+  { params }: { params: Promise<{ prescriptionId: string }> }
 ) {
   try {
     // Verify authentication
@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const doctorId = payload.userId;
-    const prescriptionId = params.prescriptionId;
+    const { prescriptionId } = await params;
     
     // Get the prescription by ID
     const prescription = await db.prescription.findUnique({
@@ -63,7 +63,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { prescriptionId: string } }
+  { params }: { params: Promise<{ prescriptionId: string }> }
 ) {
   try {
     // Verify authentication
@@ -78,7 +78,7 @@ export async function PATCH(
     }
 
     const doctorId = payload.userId;
-    const prescriptionId = params.prescriptionId;
+    const { prescriptionId } = await params;
     
     // First verify the doctor has access to this prescription
     const existingPrescription = await db.prescription.findUnique({

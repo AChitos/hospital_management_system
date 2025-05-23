@@ -7,7 +7,6 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
-import { useAuthStore } from "@/lib/auth/authStore";
 
 interface Patient {
   id: string;

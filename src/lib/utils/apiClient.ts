@@ -21,7 +21,7 @@ class ApiClient {
     }
   }
 
-  async post<T>(url: string, data: any): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
     try {
       const headers = this.getHeaders();
       const response = await fetch(url, {
@@ -36,7 +36,7 @@ class ApiClient {
     }
   }
 
-  async patch<T>(url: string, data: any): Promise<ApiResponse<T>> {
+  async patch<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
     try {
       const headers = this.getHeaders();
       const response = await fetch(url, {
@@ -51,7 +51,7 @@ class ApiClient {
     }
   }
 
-  async put<T>(url: string, data: any): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
     try {
       const headers = this.getHeaders();
       const response = await fetch(url, {
@@ -102,12 +102,12 @@ class ApiClient {
               if (payload && payload.userId) {
                 headers['X-User-ID'] = payload.userId;
               }
-            } catch (e) {
+            } catch {
               // Silent fail if token parsing fails
             }
           }
         }
-      } catch (e) {
+      } catch {
         // Don't log anything to avoid console spam
       }
     }

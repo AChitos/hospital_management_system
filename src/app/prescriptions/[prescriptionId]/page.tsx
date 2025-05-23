@@ -8,7 +8,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
-wimport { api } from "@/lib/utils/apiClient";
+import { api } from "@/lib/utils/apiClient";
 
 interface Prescription {
   id: string;
@@ -155,7 +155,7 @@ export default function PrescriptionDetailsPage() {
                   </p>
                 </div>
                 <div className="flex space-x-2">
-                  <Button variant="outline" asChild>
+                  <Button asChild>
                     <Link href={`/prescriptions/${prescription.id}/edit`}>
                       <PencilIcon className="h-4 w-4 mr-2" />
                       Edit
@@ -222,7 +222,7 @@ export default function PrescriptionDetailsPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-start border-t pt-4">
-                <Button variant="outline" asChild>
+                <Button asChild>
                   <Link href={`/patients/${prescription.patient.id}`}>
                     View Patient Profile
                   </Link>

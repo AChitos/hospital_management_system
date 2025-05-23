@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     
     try {
       // Build the where clause
-      const where: any = {};
+      const where: Record<string, unknown> = {};
       
       // If patientId is provided, add it to the where clause
       if (patientId) {

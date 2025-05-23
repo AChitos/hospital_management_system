@@ -5,7 +5,7 @@ import { verifyToken } from '@/lib/auth/auth';
 // GET all medical records for a patient
 export async function GET(
   request: NextRequest,
-  { params }: { params: Record<string, string | string[]> }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
     // Get doctorId from X-User-ID header first
@@ -71,7 +71,7 @@ export async function GET(
 // POST create a new medical record for a patient
 export async function POST(
   request: NextRequest,
-  { params }: { params: Record<string, string | string[]> }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
     // Get doctorId from X-User-ID header first
@@ -95,7 +95,7 @@ export async function POST(
       doctorId = payload.userId;
     }
     
-    const patientId = params.patientId as string;
+    const { patientId } = await params;
 
     if (!doctorId) {
       return NextResponse.json(

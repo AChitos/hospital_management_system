@@ -2,9 +2,9 @@ import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } } 
+  { params }: { params: Promise<{ appointmentId: string }> } 
 ) {
-  const appointmentId = params.appointmentId;
+  const { appointmentId } = await params;
   
   try {
     return NextResponse.json({ 
@@ -14,7 +14,7 @@ export async function GET(
       status: "SCHEDULED",
       notes: "Regular checkup"
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch appointment" },
       { status: 500 }
@@ -24,9 +24,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } }
+  { params }: { params: Promise<{ appointmentId: string }> }
 ) {
-  const appointmentId = params.appointmentId;
+  const { appointmentId } = await params;
   
   try {
     const data = await request.json();
@@ -37,7 +37,7 @@ export async function PUT(
       status: data.status || "SCHEDULED",
       updatedAt: new Date().toISOString()
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to update appointment" },
       { status: 500 }
@@ -45,17 +45,12 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { appointmentId: string } }
-) {
-  const appointmentId = params.appointmentId;
-  
+export async function DELETE() {
   try {
     return NextResponse.json({ 
       message: "Appointment deleted successfully" 
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete appointment" },
       { status: 500 }

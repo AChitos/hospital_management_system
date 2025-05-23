@@ -5,7 +5,7 @@ import { verifyToken } from '@/lib/auth/auth';
 // GET a specific patient
 export async function GET(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
     // Verify authentication
@@ -20,7 +20,7 @@ export async function GET(
     }
     
     const doctorId = payload.userId;
-    const { patientId } = params;
+    const { patientId } = await params;
 
     if (!doctorId) {
       return NextResponse.json(
@@ -67,7 +67,7 @@ export async function GET(
 // UPDATE a specific patient
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
     // Verify authentication
@@ -82,7 +82,7 @@ export async function PUT(
     }
     
     const doctorId = payload.userId;
-    const { patientId } = params;
+    const { patientId } = await params;
 
     const body = await request.json();
     const { firstName, lastName, dateOfBirth, gender, contactNumber, email, address, bloodType, allergies } = body;
@@ -137,7 +137,7 @@ export async function PUT(
 // DELETE a specific patient
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
     // Verify authentication
@@ -152,7 +152,7 @@ export async function DELETE(
     }
     
     const doctorId = payload.userId;
-    const { patientId } = params;
+    const { patientId } = await params;
 
     // Check if patient exists and belongs to doctor
     const existingPatient = await db.patient.findFirst({

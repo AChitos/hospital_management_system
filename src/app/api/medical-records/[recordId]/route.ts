@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Record<string, string | string[]> }
+  { params }: { params: Promise<{ recordId: string }> }
 ) {
   try {
-    const recordId = params.recordId as string;
+    const { recordId } = await params;
     const prisma = new PrismaClient();
     
     try {
@@ -47,10 +47,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Record<string, string | string[]> }
+  { params }: { params: Promise<{ recordId: string }> }
 ) {
   try {
-    const recordId = params.recordId as string;
+    const { recordId } = await params;
     const data = await request.json();
     const prisma = new PrismaClient();
     
@@ -80,10 +80,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Record<string, string | string[]> }
+  { params }: { params: Promise<{ recordId: string }> }
 ) {
   try {
-    const recordId = params.recordId as string;
+    const { recordId } = await params;
     const prisma = new PrismaClient();
     
     try {

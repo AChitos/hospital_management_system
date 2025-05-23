@@ -10,7 +10,7 @@ interface ClientProviderProps {
 }
 
 export default function ClientProvider({ children }: ClientProviderProps) {
-  const { isAuthenticated, token, user } = useAuthStore();
+  const { isAuthenticated, token } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   

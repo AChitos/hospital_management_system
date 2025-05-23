@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeftIcon, PencilIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
 

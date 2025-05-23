@@ -39,7 +39,6 @@ export default function NewPrescriptionPage() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<PrescriptionFormData>({
     defaultValues: {
@@ -74,7 +73,7 @@ export default function NewPrescriptionPage() {
     
     try {
       // Send the data to our API
-      const response = await api.post<any>(`/api/patients/${data.patientId}/prescriptions`, data);
+      const response = await api.post<PrescriptionFormData>(`/api/patients/${data.patientId}/prescriptions`, data);
       
       if (response.error) {
         console.error("Error creating prescription:", response.error);

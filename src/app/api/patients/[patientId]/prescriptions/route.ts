@@ -7,7 +7,7 @@ import { verifyToken } from '@/lib/auth/auth';
 // GET all prescriptions for a patient
 export async function GET(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
     // Verify authentication
@@ -20,9 +20,9 @@ export async function GET(
     if (!payload) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
-
+    
     const doctorId = payload.userId;
-    const patientId = params.patientId;
+    const { patientId } = await params;
     const prisma = new PrismaClient();
     
     try {
@@ -65,7 +65,7 @@ export async function GET(
 // POST create a new prescription for a patient
 export async function POST(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
     // Verify authentication
@@ -78,9 +78,9 @@ export async function POST(
     if (!payload) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
-
+    
     const doctorId = payload.userId;
-    const patientId = params.patientId;
+    const { patientId } = await params;
     const data = await request.json();
     const prisma = new PrismaClient();
     

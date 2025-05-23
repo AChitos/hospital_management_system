@@ -1,6 +1,3 @@
-import { NextRequest } from 'next/server';
-import { matcher } from 'next/dist/shared/lib/match-path';
-
 // Routes that require authentication
 export const config = {
   matcher: [

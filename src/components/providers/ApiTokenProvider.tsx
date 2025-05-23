@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useEffect, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useAuthStore } from '@/lib/auth/authStore';
 
 // Create a context for the API token

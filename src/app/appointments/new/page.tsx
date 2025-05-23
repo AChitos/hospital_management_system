@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
-import { ArrowLeftIcon, CalendarIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Select from 'react-select';
 import AuthLayout from "@/components/layouts/AuthLayout";
@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
 
 interface Patient {
@@ -35,13 +34,11 @@ interface AppointmentFormData {
 export default function AppointmentSchedulingPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [patients, setPatients] = useState<Patient[]>([]);
   const [patientOptions, setPatientOptions] = useState<PatientOption[]>([]);
 
   const {
     register,
     handleSubmit,
-    setValue,
     control,
     formState: { errors },
   } = useForm<AppointmentFormData>();
@@ -57,8 +54,6 @@ export default function AppointmentSchedulingPage() {
         }
         
         if (response.data) {
-          setPatients(response.data);
-          
           // Convert patients to options format for react-select
           const options = response.data.map(patient => ({
             value: patient.id,

@@ -6,7 +6,7 @@ import { ArrowLeftIcon, PencilIcon, CalendarIcon, ClipboardDocumentListIcon, Plu
 import Link from "next/link";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
 
@@ -70,7 +70,7 @@ export default function PatientDetailsPage() {
       
       try {
         // Fetch patient details from API
-        const response = await api.get<any>(`/api/patients/${patientId}`);
+        const response = await api.get<Patient>(`/api/patients/${patientId}`);
         
         if (!response.data) {
           console.error("Error fetching patient:", response.error);
