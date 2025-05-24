@@ -43,7 +43,7 @@ export async function GET(
               firstName: true,
               lastName: true,
               email: true,
-              phoneNumber: true,
+              contactNumber: true,
               dateOfBirth: true,
             },
           },
@@ -57,13 +57,21 @@ export async function GET(
         );
       }
 
+      // Format the patient data properly for the response
       return NextResponse.json({
         id: appointment.id,
         appointmentDate: appointment.appointmentDate.toISOString(),
         status: appointment.status,
         notes: appointment.notes,
         googleCalendarEventId: appointment.googleCalendarEventId,
-        patient: appointment.patient,
+        patient: {
+          id: appointment.patient.id,
+          firstName: appointment.patient.firstName,
+          lastName: appointment.patient.lastName,
+          email: appointment.patient.email,
+          contactNumber: appointment.patient.contactNumber,
+          dateOfBirth: appointment.patient.dateOfBirth?.toISOString(),
+        },
         createdAt: appointment.createdAt.toISOString(),
         updatedAt: appointment.updatedAt.toISOString(),
       });
@@ -140,20 +148,28 @@ export async function PUT(
               firstName: true,
               lastName: true,
               email: true,
-              phoneNumber: true,
+              contactNumber: true,
               dateOfBirth: true,
             },
           },
         },
       });
 
+      // Format the patient data properly for the response
       return NextResponse.json({
         id: updatedAppointment.id,
         appointmentDate: updatedAppointment.appointmentDate.toISOString(),
         status: updatedAppointment.status,
         notes: updatedAppointment.notes,
         googleCalendarEventId: updatedAppointment.googleCalendarEventId,
-        patient: updatedAppointment.patient,
+        patient: {
+          id: updatedAppointment.patient.id,
+          firstName: updatedAppointment.patient.firstName,
+          lastName: updatedAppointment.patient.lastName,
+          email: updatedAppointment.patient.email,
+          contactNumber: updatedAppointment.patient.contactNumber,
+          dateOfBirth: updatedAppointment.patient.dateOfBirth?.toISOString(),
+        },
         createdAt: updatedAppointment.createdAt.toISOString(),
         updatedAt: updatedAppointment.updatedAt.toISOString(),
       });

@@ -20,7 +20,7 @@ interface Appointment {
     firstName: string;
     lastName: string;
     email?: string;
-    phoneNumber?: string;
+    contactNumber?: string;
     dateOfBirth?: string;
   };
   notes?: string;
