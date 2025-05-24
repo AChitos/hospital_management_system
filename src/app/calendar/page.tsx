@@ -147,15 +147,24 @@ export default function CalendarPage() {
       if (filters?.startDate) params.set('startDate', filters.startDate);
       if (filters?.endDate) params.set('endDate', filters.endDate);
 
-      const url = `/api/calendar/export?${params.toString()}`;
+      // Use the new download method for file downloads
+      const result = await api.downloadFile(`/api/calendar/export?${params.toString()}`);
       
-      // Create a temporary link to download the file
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'appointments.ics';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (result.blob) {
+        // Create download link
+        const url = window.URL.createObjectURL(result.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'appointments.ics';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
       
     } catch (error) {
       console.error('Error exporting calendar:', error);

@@ -19,9 +19,14 @@ interface Appointment {
     id: string;
     firstName: string;
     lastName: string;
+    email?: string;
+    phoneNumber?: string;
+    dateOfBirth?: string;
   };
   notes?: string;
   googleCalendarEventId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export default function AppointmentDetailsPage() {
@@ -39,24 +44,22 @@ export default function AppointmentDetailsPage() {
   useEffect(() => {
     const fetchAppointmentData = async () => {
       try {
-        // In a real app, we'd fetch from an API endpoint
-        // For now using mock data
-        setTimeout(() => {
-          // Mock appointment data
-          setAppointment({
-            id: appointmentId,
-            appointmentDate: "2025-05-15T09:00:00Z", // Future date
-            status: "SCHEDULED",
-            patient: {
-              id: "1",
-              firstName: "John",
-              lastName: "Doe",
-            },
-            notes: "Follow-up appointment to discuss anesthesia options",
-          });
-          
-          setIsLoading(false);
-        }, 500);
+        setIsLoading(true);
+        
+        const response = await api.get<Appointment>(`/api/appointments/${appointmentId}`);
+        
+        if (response.error) {
+          console.error('Error fetching appointment:', response.error);
+          // Handle different error cases
+          if (response.status === 404) {
+            router.push('/appointments'); // Redirect if appointment not found
+            return;
+          }
+        } else if (response.data) {
+          setAppointment(response.data);
+        }
+        
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching appointment data:", error);
         setIsLoading(false);
@@ -66,22 +69,26 @@ export default function AppointmentDetailsPage() {
     if (appointmentId) {
       fetchAppointmentData();
     }
-  }, [appointmentId]);
+  }, [appointmentId, router]);
 
   const handleStatusChange = async (newStatus: "COMPLETED" | "CANCELLED") => {
     setIsDialogOpen(false);
     
+    if (!appointment) return;
+    
     try {
-      // In a real app, we'd update via API
-      console.log(`Updating appointment ${appointmentId} status to ${newStatus}`);
+      const response = await api.put(`/api/appointments/${appointmentId}`, {
+        status: newStatus,
+        notes: appointment.notes,
+        appointmentDate: appointment.appointmentDate,
+      });
       
-      // Update local state
-      if (appointment) {
-        setAppointment({ ...appointment, status: newStatus });
+      if (response.error) {
+        console.error(`Error updating appointment status:`, response.error);
+      } else if (response.data) {
+        // Update local state with the response from the server
+        setAppointment(response.data as Appointment);
       }
-      
-      // Mock API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
       
     } catch (error) {
       console.error(`Error updating appointment status:`, error);

@@ -80,6 +80,24 @@ class ApiClient {
     }
   }
 
+  async downloadFile(url: string): Promise<{ blob?: Blob; error?: string; status: number }> {
+    try {
+      const headers = this.getHeaders();
+      const response = await fetch(url, { headers });
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        return { blob, status: response.status };
+      } else {
+        const text = await response.text();
+        return { error: text || 'Download failed', status: response.status };
+      }
+    } catch (error) {
+      console.error('API download error:', error);
+      return { status: 500, error: 'Network error' };
+    }
+  }
+
   private getHeaders(): HeadersInit {
     const token = getAccessToken();
     const headers: HeadersInit = {

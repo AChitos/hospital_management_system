@@ -1,4 +1,4 @@
-import { createEvent, EventAttributes } from 'ics';
+import { createEvent, createEvents, EventAttributes } from 'ics';
 
 export interface AppointmentData {
   id: string;
@@ -30,6 +30,8 @@ export function appointmentToICSEvent(appointment: AppointmentData): EventAttrib
       startDate.getHours(),
       startDate.getMinutes()
     ],
+    startInputType: 'local',
+    startOutputType: 'local',
     end: [
       endDate.getFullYear(),
       endDate.getMonth() + 1,
@@ -37,6 +39,8 @@ export function appointmentToICSEvent(appointment: AppointmentData): EventAttrib
       endDate.getHours(),
       endDate.getMinutes()
     ],
+    endInputType: 'local',
+    endOutputType: 'local',
     status: appointment.status === 'COMPLETED' ? 'CONFIRMED' : 
             appointment.status === 'CANCELLED' ? 'CANCELLED' : 'TENTATIVE',
     organizer: { name: 'Hospital Management System' },
@@ -76,39 +80,14 @@ export function generateICSForAppointments(appointments: AppointmentData[]): str
   try {
     const events = appointments.map(appointment => appointmentToICSEvent(appointment));
     
-    // Create ICS header
-    let icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Hospital Management System//Appointments//EN',
-      'CALSCALE:GREGORIAN'
-    ].join('\n');
-
-    // Add each event
-    for (const event of events) {
-      const { error, value } = createEvent(event);
-      if (error) {
-        console.error('Error creating ICS event:', error);
-        continue;
-      }
-      
-      if (value) {
-        // Extract just the VEVENT part
-        const eventLines = value.split('\n');
-        const eventStart = eventLines.findIndex(line => line.startsWith('BEGIN:VEVENT'));
-        const eventEnd = eventLines.findIndex(line => line.startsWith('END:VEVENT'));
-        
-        if (eventStart !== -1 && eventEnd !== -1) {
-          const eventContent = eventLines.slice(eventStart, eventEnd + 1).join('\n');
-          icsContent += '\n' + eventContent;
-        }
-      }
-    }
-
-    // Close calendar
-    icsContent += '\nEND:VCALENDAR';
+    const { error, value } = createEvents(events);
     
-    return icsContent;
+    if (error) {
+      console.error('Error creating ICS events:', error);
+      throw new Error('Failed to create ICS events');
+    }
+    
+    return value || '';
   } catch (error) {
     console.error('Error generating ICS for appointments:', error);
     throw new Error('Failed to generate ICS file');

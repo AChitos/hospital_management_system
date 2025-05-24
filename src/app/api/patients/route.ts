@@ -5,6 +5,14 @@ import { verifyToken } from '@/lib/auth/auth';
 // GET all patients for the logged-in doctor
 export async function GET(request: NextRequest) {
   try {
+    // In development mode, bypass authentication and return all patients
+    if (process.env.NODE_ENV === 'development') {
+      const patients = await db.patient.findMany({
+        orderBy: { updatedAt: 'desc' },
+      });
+      return NextResponse.json(patients);
+    }
+
     // Verify authentication
     const token = request.headers.get('authorization')?.split(' ')[1];
     if (!token) {

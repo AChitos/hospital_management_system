@@ -8,6 +8,37 @@ export async function GET(
   { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
+    const { patientId } = await params;
+    
+    // In development mode, bypass authentication and return patient without doctorId filtering
+    if (process.env.NODE_ENV === 'development') {
+      const patient = await db.patient.findUnique({
+        where: {
+          id: patientId,
+        },
+        include: {
+          medicalRecords: {
+            orderBy: { recordDate: 'desc' },
+          },
+          prescriptions: {
+            orderBy: { issuedDate: 'desc' },
+          },
+          appointments: {
+            orderBy: { appointmentDate: 'desc' },
+          },
+        },
+      });
+
+      if (!patient) {
+        return NextResponse.json(
+          { error: 'Patient not found' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json(patient);
+    }
+
     // Verify authentication
     const token = request.headers.get('authorization')?.split(' ')[1];
     if (!token) {
@@ -20,7 +51,6 @@ export async function GET(
     }
     
     const doctorId = payload.userId;
-    const { patientId } = await params;
 
     if (!doctorId) {
       return NextResponse.json(
