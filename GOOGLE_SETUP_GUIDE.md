@@ -36,7 +36,6 @@
    - Choose "Web application" as application type
    - Add authorized redirect URIs:
      - `http://localhost:3000/api/auth/google/callback`
-     - `http://localhost:3001/api/auth/google/callback` (backup port)
    - Click "Create"
    - Copy the Client ID and Client Secret
 

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
-    const state = url.searchParams.get('state'); // Could contain user ID or return URL
+    const state = url.searchParams.get('state'); // Should contain user auth token
 
     if (!code) {
       return NextResponse.json(
@@ -29,22 +29,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user ID from state or token
+    // Get user ID from state parameter
     let userId: string | null = null;
     if (state) {
       try {
-        const decoded = JSON.parse(atob(state));
-        userId = decoded.userId;
+        // State should contain the user's JWT token
+        const payload = await verifyToken(state);
+        if (payload) {
+          userId = payload.userId;
+        }
       } catch {
-        // Invalid state, we'll need to get user ID another way
+        // Invalid token in state
+        console.error('Invalid token in state parameter');
       }
     }
 
-    // If we don't have userId from state, try to get it from a session or require re-auth
+    // If we don't have userId, redirect to calendar with error
     if (!userId) {
-      // For now, we'll redirect to a page where user can complete the setup
-      const redirectUrl = new URL('/calendar/setup', request.url);
-      redirectUrl.searchParams.set('tokens', btoa(JSON.stringify(tokens)));
+      const redirectUrl = new URL('/calendar', request.url);
+      redirectUrl.searchParams.set('error', 'auth_failed');
       return NextResponse.redirect(redirectUrl);
     }
 
@@ -55,8 +58,9 @@ export async function GET(request: NextRequest) {
         where: { id: userId },
         data: {
           googleAccessToken: tokens.access_token,
-          googleRefreshToken: tokens.refresh_token,
+          googleRefreshToken: tokens.refresh_token || null,
           googleTokenExpiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+          googleCalendarId: 'primary', // Default to primary calendar
         },
       });
 

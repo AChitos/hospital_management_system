@@ -39,7 +39,7 @@ export class GoogleCalendarService {
   /**
    * Get authorization URL for OAuth flow
    */
-  static getAuthUrl(): string {
+  static getAuthUrl(state?: string): string {
     // Validate environment variables
     if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID === 'your_google_client_id') {
       throw new Error('GOOGLE_CLIENT_ID is not properly configured. Please check your .env file.');
@@ -58,11 +58,18 @@ export class GoogleCalendarService {
       'https://www.googleapis.com/auth/calendar.events'
     ];
 
-    return oauth2Client.generateAuthUrl({
+    const authOptions: any = {
       access_type: 'offline',
       scope: scopes,
       prompt: 'consent'
-    });
+    };
+
+    // Include state parameter if provided (should contain user auth token)
+    if (state) {
+      authOptions.state = state;
+    }
+
+    return oauth2Client.generateAuthUrl(authOptions);
   }
 
   /**
