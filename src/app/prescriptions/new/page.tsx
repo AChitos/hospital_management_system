@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -30,21 +30,31 @@ interface PrescriptionFormData {
 
 export default function NewPrescriptionPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const patientIdFromUrl = searchParams.get("patientId");
   
+  // Use useState and useEffect instead of useSearchParams for SSR compatibility
+  const [patientIdFromUrl, setPatientIdFromUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
+  
+  // Get URL parameters on client-side
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    setPatientIdFromUrl(searchParams.get("patientId"));
+  }, []);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<PrescriptionFormData>({
-    defaultValues: {
-      patientId: patientIdFromUrl || "",
-    },
-  });
+  } = useForm<PrescriptionFormData>();
+  
+  // Update the form value when the URL param is loaded
+  useEffect(() => {
+    if (patientIdFromUrl) {
+      setValue("patientId", patientIdFromUrl);
+    }
+  }, [patientIdFromUrl, setValue]);
 
   // Fetch patients for selection
   useEffect(() => {

@@ -57,6 +57,13 @@ interface ActivityItem {
   value: number;
 }
 
+interface DashboardResponse {
+  stats: DashboardStats;
+  recentPatients: Patient[];
+  upcomingAppointments: Appointment[];
+  activityData: ActivityItem[];
+}
+
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
@@ -75,7 +82,7 @@ export default function Dashboard() {
       setIsLoading(true);
       try {
         // Fetch real data from our API
-        const response = await api.get('/api/dashboard');
+        const response = await api.get<DashboardResponse>('/api/dashboard');
         
         if (response.error) {
           setError(response.error);

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Generate JWT token
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.email, user.role);
 
     // Return the user without password
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

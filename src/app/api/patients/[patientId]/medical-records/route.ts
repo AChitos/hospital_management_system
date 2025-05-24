@@ -8,6 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
+    // Get route parameter
+    const { patientId } = await params;
+
     // Get doctorId from X-User-ID header first
     let doctorId = request.headers.get('X-User-ID');
     
@@ -28,8 +31,6 @@ export async function GET(
       
       doctorId = payload.userId;
     }
-    
-    const patientId = params.patientId as string;
 
     if (!doctorId) {
       return NextResponse.json(

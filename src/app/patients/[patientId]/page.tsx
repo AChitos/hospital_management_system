@@ -23,6 +23,9 @@ interface Patient {
   allergies?: string;
   createdAt: string;
   updatedAt: string;
+  medicalRecords?: MedicalRecord[];
+  prescriptions?: Prescription[];
+  appointments?: Appointment[];
 }
 
 interface MedicalRecord {
