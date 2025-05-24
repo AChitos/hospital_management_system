@@ -90,17 +90,23 @@ export default function CalendarPage() {
       const response = await api.get<{ authUrl: string }>('/api/auth/google/calendar');
       
       if (response.error) {
-        setError('Failed to get Google Calendar authorization URL');
+        if (response.error.includes('GOOGLE_CLIENT_ID')) {
+          setError('Google Calendar API is not properly configured. Please check the setup guide.');
+        } else {
+          setError(`Failed to get Google Calendar authorization URL: ${response.error}`);
+        }
         return;
       }
       
       if (response.data?.authUrl) {
         // Redirect to Google OAuth
         window.location.href = response.data.authUrl;
+      } else {
+        setError('No authorization URL received from server');
       }
     } catch (error) {
       console.error('Error connecting to Google Calendar:', error);
-      setError('Failed to connect to Google Calendar');
+      setError('Failed to connect to Google Calendar. Please check your internet connection and try again.');
     }
   };
 

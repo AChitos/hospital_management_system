@@ -40,6 +40,19 @@ export class GoogleCalendarService {
    * Get authorization URL for OAuth flow
    */
   static getAuthUrl(): string {
+    // Validate environment variables
+    if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID === 'your_google_client_id') {
+      throw new Error('GOOGLE_CLIENT_ID is not properly configured. Please check your .env file.');
+    }
+    
+    if (!process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET === 'your_google_client_secret') {
+      throw new Error('GOOGLE_CLIENT_SECRET is not properly configured. Please check your .env file.');
+    }
+    
+    if (!process.env.GOOGLE_REDIRECT_URI) {
+      throw new Error('GOOGLE_REDIRECT_URI is not configured. Please check your .env file.');
+    }
+
     const scopes = [
       'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/calendar.events'
