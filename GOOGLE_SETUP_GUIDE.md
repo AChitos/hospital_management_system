@@ -17,21 +17,28 @@
 ## Step 3: Create OAuth 2.0 Credentials
 
 1. Go to "APIs & Services" → "Credentials"
-2. Click "Create Credentials" → "OAuth client ID"
-3. If prompted, configure the OAuth consent screen:
-   - Choose "External" user type
+2. **FIRST: Configure OAuth Consent Screen** (Click "OAuth consent screen" in left sidebar)
+   - Choose "External" user type (click "Create")
    - Fill in required fields:
      - App name: "Hospital Management System"
      - User support email: your email
      - Developer contact: your email
-   - Add scopes: `https://www.googleapis.com/auth/calendar`
-   - Add test users (your email address)
-4. Choose "Web application" as application type
-5. Add authorized redirect URIs:
-   - `http://localhost:3000/api/auth/google/callback`
-   - If deploying to production, also add your production URL
-6. Click "Create"
-7. Copy the Client ID and Client Secret
+   - **Important**: In "Scopes" section, add these scopes:
+     - `https://www.googleapis.com/auth/calendar`
+     - `https://www.googleapis.com/auth/calendar.events`
+   - **Critical**: In "Test users" section, add your email address
+   - Save and continue through all steps
+   - **Keep the app in "Testing" mode** (don't publish it)
+
+3. **THEN: Create OAuth client ID**
+   - Go back to "Credentials" tab
+   - Click "Create Credentials" → "OAuth client ID"
+   - Choose "Web application" as application type
+   - Add authorized redirect URIs:
+     - `http://localhost:3000/api/auth/google/callback`
+     - `http://localhost:3001/api/auth/google/callback` (backup port)
+   - Click "Create"
+   - Copy the Client ID and Client Secret
 
 ## Step 4: Update Environment Variables
 
