@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, PencilIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
 
@@ -38,6 +39,8 @@ export default function MedicalRecordDetailsPage() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [medicalRecord, setMedicalRecord] = useState<MedicalRecord | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchMedicalRecordData = async () => {
@@ -65,6 +68,33 @@ export default function MedicalRecordDetailsPage() {
       fetchMedicalRecordData();
     }
   }, [recordId]);
+
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!medicalRecord) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await api.delete(`/api/medical-records/${medicalRecord.id}`);
+      
+      if (response.data) {
+        router.push("/medical-records");
+      } else {
+        console.error("Error deleting medical record:", response.error);
+        alert("Failed to delete medical record. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting medical record:", error);
+      alert("Failed to delete medical record. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -115,6 +145,10 @@ export default function MedicalRecordDetailsPage() {
                   Edit Record
                 </Button>
               </Link>
+              <Button variant="destructive" onClick={handleDeleteClick}>
+                <TrashIcon className="h-4 w-4 mr-2" />
+                Delete Record
+              </Button>
             </div>
           </div>
         </div>
@@ -214,6 +248,28 @@ export default function MedicalRecordDetailsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              <p className="text-sm text-gray-500">
+                Are you sure you want to delete this medical record? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end gap-4 mt-6">
+              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeleting}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteConfirm} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete Medical Record"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AuthLayout>
   );

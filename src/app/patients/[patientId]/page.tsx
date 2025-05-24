@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeftIcon, PencilIcon, CalendarIcon, ClipboardDocumentListIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, PencilIcon, CalendarIcon, ClipboardDocumentListIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Patient {
   id: string;
@@ -64,6 +65,8 @@ export default function PatientDetailsPage() {
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -121,6 +124,33 @@ export default function PatientDetailsPage() {
     fetchPatientData();
   }, [patientId]);
 
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!patient) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await api.delete(`/api/patients/${patient.id}`);
+      
+      if (response.data) {
+        router.push("/patients");
+      } else {
+        console.error("Error deleting patient:", response.error);
+        alert("Failed to delete patient. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+      alert("Failed to delete patient. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <AuthLayout>
@@ -176,12 +206,18 @@ export default function PatientDetailsPage() {
                 {patient.firstName} {patient.lastName}
               </h1>
             </div>
-            <Link href={`/patients/${patientId}/edit`}>
-              <Button>
-                <PencilIcon className="h-4 w-4 mr-2" />
-                Edit Patient
+            <div className="flex items-center">
+              <Link href={`/patients/${patientId}/edit`} className="mr-4">
+                <Button>
+                  <PencilIcon className="h-4 w-4 mr-2" />
+                  Edit Patient
+                </Button>
+              </Link>
+              <Button variant="destructive" onClick={handleDeleteClick}>
+                <TrashIcon className="h-4 w-4 mr-2" />
+                Delete Patient
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
 
@@ -411,6 +447,26 @@ export default function PatientDetailsPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Patient</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-gray-700">Are you sure you want to delete this patient? This action cannot be undone.</p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeleting}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteConfirm} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete Patient"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AuthLayout>
   );

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PlusIcon, CalendarIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, CalendarIcon, MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
 
@@ -26,6 +27,9 @@ export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<Appointment | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -51,6 +55,35 @@ export default function AppointmentsPage() {
 
     fetchAppointments();
   }, []);
+
+  const handleDeleteClick = (appointment: Appointment) => {
+    setAppointmentToDelete(appointment);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!appointmentToDelete) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await api.delete(`/api/appointments/${appointmentToDelete.id}`);
+      
+      if (response.data) {
+        setAppointments(appointments.filter(appointment => appointment.id !== appointmentToDelete.id));
+        setDeleteDialogOpen(false);
+        setAppointmentToDelete(null);
+      } else {
+        console.error("Error deleting appointment:", response.error);
+        alert("Failed to delete appointment. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      alert("Failed to delete appointment. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Filter appointments based on search query
   const filteredAppointments = appointments.filter((appointment) => {
@@ -323,6 +356,36 @@ export default function AppointmentsPage() {
             </div>
           </div>
         </div>
+
+        {/* Delete appointment confirmation dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="text-sm text-gray-700">
+                Are you sure you want to delete this appointment? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end p-4">
+              <Button
+                variant="outline"
+                className="mr-2"
+                onClick={() => setDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete Appointment"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AuthLayout>
   );

@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Patient {
   id: string;
@@ -23,6 +24,9 @@ export default function PatientsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -55,6 +59,36 @@ export default function PatientsPage() {
       patient.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       patient.contactNumber?.includes(searchQuery)
   );
+
+  const handleDeleteClick = (patient: Patient) => {
+    setPatientToDelete(patient);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!patientToDelete) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await api.delete(`/api/patients/${patientToDelete.id}`);
+      
+      if (response.error) {
+        console.error("Error deleting patient:", response.error);
+        setIsDeleting(false);
+        return;
+      }
+      
+      // Remove the deleted patient from the list
+      setPatients(prev => prev.filter(p => p.id !== patientToDelete.id));
+      setDeleteDialogOpen(false);
+      setPatientToDelete(null);
+      setIsDeleting(false);
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+      setIsDeleting(false);
+    }
+  };
 
   const calculateAge = (dateOfBirth: string): number => {
     const today = new Date();
@@ -148,12 +182,22 @@ export default function PatientsPage() {
                         {formatDate(new Date(patient.updatedAt))}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link
-                          href={`/patients/${patient.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          Details
-                        </Link>
+                        <div className="flex items-center justify-end space-x-2">
+                          <Link
+                            href={`/patients/${patient.id}`}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            Details
+                          </Link>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteClick(patient)}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -163,6 +207,41 @@ export default function PatientsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Patient</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {patientToDelete && (
+              <p>
+                Are you sure you want to delete the patient{" "}
+                <strong>
+                  {patientToDelete.firstName} {patientToDelete.lastName}
+                </strong>? This will also delete all associated medical records, prescriptions, and appointments. This action cannot be undone.
+              </p>
+            )}
+          </div>
+          <div className="flex justify-end gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Patient"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AuthLayout>
   );
 }
