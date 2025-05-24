@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, PencilIcon, DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Prescription {
   id: string;
@@ -39,6 +40,8 @@ export default function PrescriptionDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [prescription, setPrescription] = useState<Prescription | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchPrescriptionData = async () => {
@@ -77,6 +80,26 @@ export default function PrescriptionDetailsPage() {
   const isPrescriptionActive = (prescription: Prescription) => {
     if (!prescription.expiryDate) return true;
     return new Date(prescription.expiryDate) > new Date();
+  };
+
+  const handleDeletePrescription = async () => {
+    setIsDeleting(true);
+    
+    try {
+      const response = await api.delete(`/api/prescriptions/${prescriptionId}`);
+      
+      if (response.error) {
+        console.error("Error deleting prescription:", response.error);
+        setIsDeleting(false);
+        return;
+      }
+      
+      // Navigate back to prescriptions list
+      router.push("/prescriptions");
+    } catch (error) {
+      console.error("Error deleting prescription:", error);
+      setIsDeleting(false);
+    }
   };
 
   if (isLoading) {
@@ -165,6 +188,14 @@ export default function PrescriptionDetailsPage() {
                     <DocumentDuplicateIcon className="h-4 w-4 mr-2" />
                     Print
                   </Button>
+                  <Button 
+                    variant="outline" 
+                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <TrashIcon className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="pt-2">
@@ -232,6 +263,37 @@ export default function PrescriptionDetailsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Prescription</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>
+              Are you sure you want to delete this prescription for{" "}
+              <strong>{prescription.medication}</strong>? This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleDeletePrescription}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Prescription"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AuthLayout>
   );
 }

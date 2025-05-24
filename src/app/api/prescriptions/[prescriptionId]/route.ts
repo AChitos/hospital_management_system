@@ -140,3 +140,55 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ prescriptionId: string }> }
+) {
+  try {
+    // Verify authentication
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
+    const doctorId = payload.userId;
+    const { prescriptionId } = await params;
+    
+    // First verify the doctor has access to this prescription
+    const existingPrescription = await db.prescription.findUnique({
+      where: { id: prescriptionId },
+      include: {
+        patient: {
+          select: {
+            doctorId: true
+          }
+        }
+      }
+    });
+
+    if (!existingPrescription) {
+      return NextResponse.json({ error: 'Prescription not found' }, { status: 404 });
+    }
+
+    // Verify the doctor has access to this prescription
+    if (existingPrescription.doctorId !== doctorId && existingPrescription.patient.doctorId !== doctorId) {
+      return NextResponse.json({ error: 'Unauthorized access' }, { status: 403 });
+    }
+
+    // Delete the prescription
+    await db.prescription.delete({
+      where: { id: prescriptionId },
+    });
+
+    return NextResponse.json({ message: 'Prescription deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting prescription:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

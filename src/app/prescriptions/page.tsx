@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
 import { api } from "@/lib/utils/apiClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Prescription {
   id: string;
@@ -29,6 +30,9 @@ export default function PrescriptionsPage() {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [prescriptionToDelete, setPrescriptionToDelete] = useState<Prescription | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchPrescriptions = async () => {
@@ -63,6 +67,36 @@ export default function PrescriptionsPage() {
            prescription.medication.toLowerCase().includes(query) || 
            prescription.dosage.toLowerCase().includes(query);
   });
+
+  const handleDeleteClick = (prescription: Prescription) => {
+    setPrescriptionToDelete(prescription);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!prescriptionToDelete) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await api.delete(`/api/prescriptions/${prescriptionToDelete.id}`);
+      
+      if (response.error) {
+        console.error("Error deleting prescription:", response.error);
+        setIsDeleting(false);
+        return;
+      }
+      
+      // Remove the deleted prescription from the list
+      setPrescriptions(prev => prev.filter(p => p.id !== prescriptionToDelete.id));
+      setDeleteDialogOpen(false);
+      setPrescriptionToDelete(null);
+      setIsDeleting(false);
+    } catch (error) {
+      console.error("Error deleting prescription:", error);
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <AuthLayout>
@@ -170,12 +204,22 @@ export default function PrescriptionsPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link
-                          href={`/prescriptions/${prescription.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          Details
-                        </Link>
+                        <div className="flex items-center justify-end space-x-2">
+                          <Link
+                            href={`/prescriptions/${prescription.id}`}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            Details
+                          </Link>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteClick(prescription)}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -185,6 +229,42 @@ export default function PrescriptionsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Prescription</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {prescriptionToDelete && (
+              <p>
+                Are you sure you want to delete the prescription for{" "}
+                <strong>{prescriptionToDelete.medication}</strong> prescribed to{" "}
+                <strong>
+                  {prescriptionToDelete.patient.firstName} {prescriptionToDelete.patient.lastName}
+                </strong>? This action cannot be undone.
+              </p>
+            )}
+          </div>
+          <div className="flex justify-end gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Prescription"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AuthLayout>
   );
 }
