@@ -204,10 +204,17 @@ export default function AppointmentsPage() {
                           <td className="px-6 py-4 text-right">
                             <Link
                               href={`/appointments/${appointment.id}`}
-                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3"
                             >
                               Details
                             </Link>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteClick(appointment)}
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
                           </td>
                         </tr>
                       ))
@@ -273,10 +280,17 @@ export default function AppointmentsPage() {
                           <td className="px-6 py-4 text-right">
                             <Link
                               href={`/appointments/${appointment.id}`}
-                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3"
                             >
                               Details
                             </Link>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteClick(appointment)}
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
                           </td>
                         </tr>
                       ))
@@ -342,10 +356,17 @@ export default function AppointmentsPage() {
                           <td className="px-6 py-4 text-right">
                             <Link
                               href={`/appointments/${appointment.id}`}
-                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium mr-3"
                             >
                               Details
                             </Link>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteClick(appointment)}
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
                           </td>
                         </tr>
                       ))

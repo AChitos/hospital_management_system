@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, PencilIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, PencilIcon, XCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils/helpers";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { api } from "@/lib/utils/apiClient";
 
 interface Appointment {
   id: string;
@@ -30,7 +31,8 @@ export default function AppointmentDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [appointment, setAppointment] = useState<Appointment | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<"cancel" | "complete">("cancel");
+  const [dialogType, setDialogType] = useState<"cancel" | "complete" | "delete">("cancel");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -84,9 +86,32 @@ export default function AppointmentDetailsPage() {
     }
   };
 
-  const openDialog = (type: "cancel" | "complete") => {
+  const openDialog = (type: "cancel" | "complete" | "delete") => {
     setDialogType(type);
     setIsDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!appointment) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const response = await api.delete(`/api/appointments/${appointment.id}`);
+      
+      if (response.data) {
+        router.push("/appointments");
+      } else {
+        console.error("Error deleting appointment:", response.error);
+        alert("Failed to delete appointment. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      alert("Failed to delete appointment. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setIsDialogOpen(false);
+    }
   };
 
   if (isLoading) {
@@ -155,6 +180,13 @@ export default function AppointmentDetailsPage() {
                   </Button>
                 </>
               )}
+              <Button 
+                variant="destructive"
+                onClick={() => openDialog("delete")}
+              >
+                <TrashIcon className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
             </div>
           </div>
         </div>
@@ -202,24 +234,39 @@ export default function AppointmentDetailsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {dialogType === "cancel" ? "Cancel Appointment" : "Complete Appointment"}
+              {dialogType === "cancel" ? "Cancel Appointment" : 
+               dialogType === "complete" ? "Complete Appointment" : 
+               "Delete Appointment"}
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <p>
-              Are you sure you want to {dialogType === "cancel" ? "cancel" : "mark as completed"} 
-              this appointment with {appointment.patient.firstName} {appointment.patient.lastName}?
+              {dialogType === "delete" ? (
+                <>Are you sure you want to delete this appointment? This action cannot be undone.</>
+              ) : (
+                <>Are you sure you want to {dialogType === "cancel" ? "cancel" : "mark as completed"} 
+                this appointment with {appointment.patient.firstName} {appointment.patient.lastName}?</>
+              )}
             </p>
           </div>
           <div className="flex justify-end gap-4">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isDeleting}>
               No, Go Back
             </Button>
             <Button 
-              variant={dialogType === "cancel" ? "destructive" : "default"}
-              onClick={() => handleStatusChange(dialogType === "cancel" ? "CANCELLED" : "COMPLETED")}
+              variant={dialogType === "cancel" || dialogType === "delete" ? "destructive" : "default"}
+              onClick={() => {
+                if (dialogType === "delete") {
+                  handleDeleteConfirm();
+                } else {
+                  handleStatusChange(dialogType === "cancel" ? "CANCELLED" : "COMPLETED");
+                }
+              }}
+              disabled={isDeleting}
             >
-              Yes, {dialogType === "cancel" ? "Cancel" : "Complete"} Appointment
+              {dialogType === "delete" && isDeleting ? "Deleting..." : 
+               dialogType === "delete" ? "Yes, Delete Appointment" :
+               `Yes, ${dialogType === "cancel" ? "Cancel" : "Complete"} Appointment`}
             </Button>
           </div>
         </DialogContent>
