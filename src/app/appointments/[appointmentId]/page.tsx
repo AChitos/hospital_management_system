@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, PencilIcon, XCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, PencilIcon, XCircleIcon, TrashIcon, CalendarIcon, LinkIcon } from "@heroicons/react/24/outline";
 import AuthLayout from "@/components/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ interface Appointment {
     lastName: string;
   };
   notes?: string;
+  googleCalendarEventId?: string;
 }
 
 export default function AppointmentDetailsPage() {
@@ -33,6 +34,7 @@ export default function AppointmentDetailsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<"cancel" | "complete" | "delete">("cancel");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -83,6 +85,34 @@ export default function AppointmentDetailsPage() {
       
     } catch (error) {
       console.error(`Error updating appointment status:`, error);
+    }
+  };
+
+  const handleCalendarSync = async () => {
+    if (!appointment) return;
+    
+    setIsSyncing(true);
+    try {
+      if (appointment.googleCalendarEventId) {
+        // Unsync from Google Calendar
+        const response = await api.delete(`/api/calendar/sync?appointmentId=${appointment.id}`);
+        if (response.status === 200) {
+          setAppointment(prev => prev ? { ...prev, googleCalendarEventId: undefined } : null);
+        }
+      } else {
+        // Sync to Google Calendar
+        const response = await api.post('/api/calendar/sync', {
+          appointmentId: appointment.id
+        });
+        if (response.status === 200 && response.data) {
+          const data = response.data as { eventId: string };
+          setAppointment(prev => prev ? { ...prev, googleCalendarEventId: data.eventId } : null);
+        }
+      }
+    } catch (error) {
+      console.error('Calendar sync error:', error);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -157,6 +187,24 @@ export default function AppointmentDetailsPage() {
               </h1>
             </div>
             <div className="flex space-x-2">
+              <Button 
+                variant="outline"
+                onClick={handleCalendarSync}
+                disabled={isSyncing}
+                className={appointment.googleCalendarEventId ? "text-green-600 hover:text-green-800" : "text-blue-600 hover:text-blue-800"}
+              >
+                {appointment.googleCalendarEventId ? (
+                  <>
+                    <LinkIcon className="h-4 w-4 mr-2" />
+                    {isSyncing ? "Unsyncing..." : "Synced with Google"}
+                  </>
+                ) : (
+                  <>
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    {isSyncing ? "Syncing..." : "Sync to Google"}
+                  </>
+                )}
+              </Button>
               <Link href={`/appointments/${appointmentId}/edit`}>
                 <Button variant="outline">
                   <PencilIcon className="h-4 w-4 mr-2" />
@@ -222,6 +270,14 @@ export default function AppointmentDetailsPage() {
                 <p className="text-sm text-gray-500">Notes</p>
                 <p>{appointment.notes || "No notes available"}</p>
               </div>
+              {appointment.googleCalendarEventId && (
+                <div className="col-span-1 md:col-span-2">
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CalendarIcon className="h-4 w-4" />
+                    <span>Synced with Google Calendar</span>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

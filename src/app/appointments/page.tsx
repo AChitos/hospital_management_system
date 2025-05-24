@@ -111,12 +111,20 @@ export default function AppointmentsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Appointments</h1>
-          <Link href="/appointments/new">
-            <Button>
-              <PlusIcon className="h-4 w-4 mr-2" />
-              New Appointment
-            </Button>
-          </Link>
+          <div className="flex space-x-2">
+            <Link href="/calendar">
+              <Button variant="outline">
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                Calendar View
+              </Button>
+            </Link>
+            <Link href="/appointments/new">
+              <Button>
+                <PlusIcon className="h-4 w-4 mr-2" />
+                New Appointment
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {error && (

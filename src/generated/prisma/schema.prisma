@@ -13,17 +13,21 @@ datasource db {
 
 // User model for doctor authentication
 model User {
-  id             String          @id @default(uuid())
-  email          String          @unique
-  password       String
-  firstName      String
-  lastName       String
-  role           String          @default("DOCTOR")
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  patients       Patient[]
-  prescriptions  Prescription[]
-  medicalRecords MedicalRecord[]
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  password           String
+  firstName          String
+  lastName           String
+  role               String          @default("DOCTOR")
+  googleCalendarId   String?
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  patients           Patient[]
+  prescriptions      Prescription[]
+  medicalRecords     MedicalRecord[]
 }
 
 // Patient model
@@ -85,12 +89,13 @@ model Prescription {
 
 // Appointment model
 model Appointment {
-  id              String   @id @default(uuid())
-  appointmentDate DateTime
-  status          String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
-  notes           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  patient         Patient  @relation(fields: [patientId], references: [id])
-  patientId       String
+  id                    String   @id @default(uuid())
+  appointmentDate       DateTime
+  status                String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+  notes                 String?
+  googleCalendarEventId String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  patient               Patient  @relation(fields: [patientId], references: [id])
+  patientId             String
 }

@@ -29,6 +29,7 @@ interface AppointmentFormData {
   appointmentDate: string;
   appointmentTime: string;
   notes: string;
+  syncToGoogle: boolean;
 }
 
 export default function AppointmentSchedulingPage() {
@@ -87,6 +88,19 @@ export default function AppointmentSchedulingPage() {
       
       if (response.error) {
         throw new Error(response.error);
+      }
+      
+      // If Google Calendar sync is enabled, sync the appointment
+      if (data.syncToGoogle && response.data) {
+        try {
+          const appointmentData = response.data as { id: string };
+          await api.post('/api/calendar/sync', {
+            appointmentId: appointmentData.id
+          });
+        } catch (syncError) {
+          console.error("Error syncing to Google Calendar:", syncError);
+          // Continue even if sync fails
+        }
       }
       
       setIsLoading(false);
@@ -207,6 +221,18 @@ export default function AppointmentSchedulingPage() {
                   placeholder="Enter any notes about this appointment"
                   {...register("notes")}
                 ></textarea>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  id="syncToGoogle"
+                  type="checkbox"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  {...register("syncToGoogle")}
+                />
+                <Label htmlFor="syncToGoogle" className="text-sm font-medium text-gray-700">
+                  Sync to Google Calendar
+                </Label>
               </div>
             </CardContent>
             

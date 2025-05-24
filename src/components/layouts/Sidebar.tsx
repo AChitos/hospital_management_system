@@ -33,6 +33,11 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       icon: CalendarIcon,
     },
     {
+      name: "Calendar",
+      href: "/calendar",
+      icon: CalendarIcon,
+    },
+    {
       name: "Prescriptions",
       href: "/prescriptions",
       icon: ClipboardDocumentListIcon,

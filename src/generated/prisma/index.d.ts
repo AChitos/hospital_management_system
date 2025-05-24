@@ -1347,6 +1347,10 @@ export namespace Prisma {
     firstName: string | null
     lastName: string | null
     role: string | null
+    googleCalendarId: string | null
+    googleAccessToken: string | null
+    googleRefreshToken: string | null
+    googleTokenExpiry: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1358,6 +1362,10 @@ export namespace Prisma {
     firstName: string | null
     lastName: string | null
     role: string | null
+    googleCalendarId: string | null
+    googleAccessToken: string | null
+    googleRefreshToken: string | null
+    googleTokenExpiry: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1369,6 +1377,10 @@ export namespace Prisma {
     firstName: number
     lastName: number
     role: number
+    googleCalendarId: number
+    googleAccessToken: number
+    googleRefreshToken: number
+    googleTokenExpiry: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1382,6 +1394,10 @@ export namespace Prisma {
     firstName?: true
     lastName?: true
     role?: true
+    googleCalendarId?: true
+    googleAccessToken?: true
+    googleRefreshToken?: true
+    googleTokenExpiry?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1393,6 +1409,10 @@ export namespace Prisma {
     firstName?: true
     lastName?: true
     role?: true
+    googleCalendarId?: true
+    googleAccessToken?: true
+    googleRefreshToken?: true
+    googleTokenExpiry?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1404,6 +1424,10 @@ export namespace Prisma {
     firstName?: true
     lastName?: true
     role?: true
+    googleCalendarId?: true
+    googleAccessToken?: true
+    googleRefreshToken?: true
+    googleTokenExpiry?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1488,6 +1512,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role: string
+    googleCalendarId: string | null
+    googleAccessToken: string | null
+    googleRefreshToken: string | null
+    googleTokenExpiry: Date | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1516,6 +1544,10 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     role?: boolean
+    googleCalendarId?: boolean
+    googleAccessToken?: boolean
+    googleRefreshToken?: boolean
+    googleTokenExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     patients?: boolean | User$patientsArgs<ExtArgs>
@@ -1531,6 +1563,10 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     role?: boolean
+    googleCalendarId?: boolean
+    googleAccessToken?: boolean
+    googleRefreshToken?: boolean
+    googleTokenExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1542,6 +1578,10 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     role?: boolean
+    googleCalendarId?: boolean
+    googleAccessToken?: boolean
+    googleRefreshToken?: boolean
+    googleTokenExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1553,11 +1593,15 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     role?: boolean
+    googleCalendarId?: boolean
+    googleAccessToken?: boolean
+    googleRefreshToken?: boolean
+    googleTokenExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "googleCalendarId" | "googleAccessToken" | "googleRefreshToken" | "googleTokenExpiry" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     patients?: boolean | User$patientsArgs<ExtArgs>
     prescriptions?: boolean | User$prescriptionsArgs<ExtArgs>
@@ -1581,6 +1625,10 @@ export namespace Prisma {
       firstName: string
       lastName: string
       role: string
+      googleCalendarId: string | null
+      googleAccessToken: string | null
+      googleRefreshToken: string | null
+      googleTokenExpiry: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -2015,6 +2063,10 @@ export namespace Prisma {
     readonly firstName: FieldRef<"User", 'String'>
     readonly lastName: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'String'>
+    readonly googleCalendarId: FieldRef<"User", 'String'>
+    readonly googleAccessToken: FieldRef<"User", 'String'>
+    readonly googleRefreshToken: FieldRef<"User", 'String'>
+    readonly googleTokenExpiry: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -6083,6 +6135,7 @@ export namespace Prisma {
     appointmentDate: Date | null
     status: string | null
     notes: string | null
+    googleCalendarEventId: string | null
     createdAt: Date | null
     updatedAt: Date | null
     patientId: string | null
@@ -6093,6 +6146,7 @@ export namespace Prisma {
     appointmentDate: Date | null
     status: string | null
     notes: string | null
+    googleCalendarEventId: string | null
     createdAt: Date | null
     updatedAt: Date | null
     patientId: string | null
@@ -6103,6 +6157,7 @@ export namespace Prisma {
     appointmentDate: number
     status: number
     notes: number
+    googleCalendarEventId: number
     createdAt: number
     updatedAt: number
     patientId: number
@@ -6115,6 +6170,7 @@ export namespace Prisma {
     appointmentDate?: true
     status?: true
     notes?: true
+    googleCalendarEventId?: true
     createdAt?: true
     updatedAt?: true
     patientId?: true
@@ -6125,6 +6181,7 @@ export namespace Prisma {
     appointmentDate?: true
     status?: true
     notes?: true
+    googleCalendarEventId?: true
     createdAt?: true
     updatedAt?: true
     patientId?: true
@@ -6135,6 +6192,7 @@ export namespace Prisma {
     appointmentDate?: true
     status?: true
     notes?: true
+    googleCalendarEventId?: true
     createdAt?: true
     updatedAt?: true
     patientId?: true
@@ -6218,6 +6276,7 @@ export namespace Prisma {
     appointmentDate: Date
     status: string
     notes: string | null
+    googleCalendarEventId: string | null
     createdAt: Date
     updatedAt: Date
     patientId: string
@@ -6245,6 +6304,7 @@ export namespace Prisma {
     appointmentDate?: boolean
     status?: boolean
     notes?: boolean
+    googleCalendarEventId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     patientId?: boolean
@@ -6256,6 +6316,7 @@ export namespace Prisma {
     appointmentDate?: boolean
     status?: boolean
     notes?: boolean
+    googleCalendarEventId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     patientId?: boolean
@@ -6267,6 +6328,7 @@ export namespace Prisma {
     appointmentDate?: boolean
     status?: boolean
     notes?: boolean
+    googleCalendarEventId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     patientId?: boolean
@@ -6278,12 +6340,13 @@ export namespace Prisma {
     appointmentDate?: boolean
     status?: boolean
     notes?: boolean
+    googleCalendarEventId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     patientId?: boolean
   }
 
-  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "appointmentDate" | "status" | "notes" | "createdAt" | "updatedAt" | "patientId", ExtArgs["result"]["appointment"]>
+  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "appointmentDate" | "status" | "notes" | "googleCalendarEventId" | "createdAt" | "updatedAt" | "patientId", ExtArgs["result"]["appointment"]>
   export type AppointmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     patient?: boolean | PatientDefaultArgs<ExtArgs>
   }
@@ -6304,6 +6367,7 @@ export namespace Prisma {
       appointmentDate: Date
       status: string
       notes: string | null
+      googleCalendarEventId: string | null
       createdAt: Date
       updatedAt: Date
       patientId: string
@@ -6735,6 +6799,7 @@ export namespace Prisma {
     readonly appointmentDate: FieldRef<"Appointment", 'DateTime'>
     readonly status: FieldRef<"Appointment", 'String'>
     readonly notes: FieldRef<"Appointment", 'String'>
+    readonly googleCalendarEventId: FieldRef<"Appointment", 'String'>
     readonly createdAt: FieldRef<"Appointment", 'DateTime'>
     readonly updatedAt: FieldRef<"Appointment", 'DateTime'>
     readonly patientId: FieldRef<"Appointment", 'String'>
@@ -7168,6 +7233,10 @@ export namespace Prisma {
     firstName: 'firstName',
     lastName: 'lastName',
     role: 'role',
+    googleCalendarId: 'googleCalendarId',
+    googleAccessToken: 'googleAccessToken',
+    googleRefreshToken: 'googleRefreshToken',
+    googleTokenExpiry: 'googleTokenExpiry',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -7235,6 +7304,7 @@ export namespace Prisma {
     appointmentDate: 'appointmentDate',
     status: 'status',
     notes: 'notes',
+    googleCalendarEventId: 'googleCalendarEventId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     patientId: 'patientId'
@@ -7298,6 +7368,10 @@ export namespace Prisma {
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
+    googleCalendarId?: StringNullableFilter<"User"> | string | null
+    googleAccessToken?: StringNullableFilter<"User"> | string | null
+    googleRefreshToken?: StringNullableFilter<"User"> | string | null
+    googleTokenExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     patients?: PatientListRelationFilter
@@ -7312,6 +7386,10 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     role?: SortOrder
+    googleCalendarId?: SortOrderInput | SortOrder
+    googleAccessToken?: SortOrderInput | SortOrder
+    googleRefreshToken?: SortOrderInput | SortOrder
+    googleTokenExpiry?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     patients?: PatientOrderByRelationAggregateInput
@@ -7329,6 +7407,10 @@ export namespace Prisma {
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
+    googleCalendarId?: StringNullableFilter<"User"> | string | null
+    googleAccessToken?: StringNullableFilter<"User"> | string | null
+    googleRefreshToken?: StringNullableFilter<"User"> | string | null
+    googleTokenExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     patients?: PatientListRelationFilter
@@ -7343,6 +7425,10 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     role?: SortOrder
+    googleCalendarId?: SortOrderInput | SortOrder
+    googleAccessToken?: SortOrderInput | SortOrder
+    googleRefreshToken?: SortOrderInput | SortOrder
+    googleTokenExpiry?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -7360,6 +7446,10 @@ export namespace Prisma {
     firstName?: StringWithAggregatesFilter<"User"> | string
     lastName?: StringWithAggregatesFilter<"User"> | string
     role?: StringWithAggregatesFilter<"User"> | string
+    googleCalendarId?: StringNullableWithAggregatesFilter<"User"> | string | null
+    googleAccessToken?: StringNullableWithAggregatesFilter<"User"> | string | null
+    googleRefreshToken?: StringNullableWithAggregatesFilter<"User"> | string | null
+    googleTokenExpiry?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -7662,6 +7752,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFilter<"Appointment"> | Date | string
     status?: StringFilter<"Appointment"> | string
     notes?: StringNullableFilter<"Appointment"> | string | null
+    googleCalendarEventId?: StringNullableFilter<"Appointment"> | string | null
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
     patientId?: StringFilter<"Appointment"> | string
@@ -7673,6 +7764,7 @@ export namespace Prisma {
     appointmentDate?: SortOrder
     status?: SortOrder
     notes?: SortOrderInput | SortOrder
+    googleCalendarEventId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     patientId?: SortOrder
@@ -7687,6 +7779,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFilter<"Appointment"> | Date | string
     status?: StringFilter<"Appointment"> | string
     notes?: StringNullableFilter<"Appointment"> | string | null
+    googleCalendarEventId?: StringNullableFilter<"Appointment"> | string | null
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
     patientId?: StringFilter<"Appointment"> | string
@@ -7698,6 +7791,7 @@ export namespace Prisma {
     appointmentDate?: SortOrder
     status?: SortOrder
     notes?: SortOrderInput | SortOrder
+    googleCalendarEventId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     patientId?: SortOrder
@@ -7714,6 +7808,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
     status?: StringWithAggregatesFilter<"Appointment"> | string
     notes?: StringNullableWithAggregatesFilter<"Appointment"> | string | null
+    googleCalendarEventId?: StringNullableWithAggregatesFilter<"Appointment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
     patientId?: StringWithAggregatesFilter<"Appointment"> | string
@@ -7726,6 +7821,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patients?: PatientCreateNestedManyWithoutDoctorInput
@@ -7740,6 +7839,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patients?: PatientUncheckedCreateNestedManyWithoutDoctorInput
@@ -7754,6 +7857,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patients?: PatientUpdateManyWithoutDoctorNestedInput
@@ -7768,6 +7875,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patients?: PatientUncheckedUpdateManyWithoutDoctorNestedInput
@@ -7782,6 +7893,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7793,6 +7908,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7804,6 +7923,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8142,6 +8265,7 @@ export namespace Prisma {
     appointmentDate: Date | string
     status?: string
     notes?: string | null
+    googleCalendarEventId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patient: PatientCreateNestedOneWithoutAppointmentsInput
@@ -8152,6 +8276,7 @@ export namespace Prisma {
     appointmentDate: Date | string
     status?: string
     notes?: string | null
+    googleCalendarEventId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patientId: string
@@ -8162,6 +8287,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    googleCalendarEventId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patient?: PatientUpdateOneRequiredWithoutAppointmentsNestedInput
@@ -8172,6 +8298,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    googleCalendarEventId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patientId?: StringFieldUpdateOperationsInput | string
@@ -8182,6 +8309,7 @@ export namespace Prisma {
     appointmentDate: Date | string
     status?: string
     notes?: string | null
+    googleCalendarEventId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patientId: string
@@ -8192,6 +8320,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    googleCalendarEventId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8201,6 +8330,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    googleCalendarEventId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patientId?: StringFieldUpdateOperationsInput | string
@@ -8218,6 +8348,31 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
@@ -8249,6 +8404,11 @@ export namespace Prisma {
     none?: MedicalRecordWhereInput
   }
 
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type PatientOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -8268,6 +8428,10 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     role?: SortOrder
+    googleCalendarId?: SortOrder
+    googleAccessToken?: SortOrder
+    googleRefreshToken?: SortOrder
+    googleTokenExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8279,6 +8443,10 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     role?: SortOrder
+    googleCalendarId?: SortOrder
+    googleAccessToken?: SortOrder
+    googleRefreshToken?: SortOrder
+    googleTokenExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8290,6 +8458,10 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     role?: SortOrder
+    googleCalendarId?: SortOrder
+    googleAccessToken?: SortOrder
+    googleRefreshToken?: SortOrder
+    googleTokenExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8311,6 +8483,37 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -8325,20 +8528,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -8348,11 +8537,6 @@ export namespace Prisma {
     every?: AppointmentWhereInput
     some?: AppointmentWhereInput
     none?: AppointmentWhereInput
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type AppointmentOrderByRelationAggregateInput = {
@@ -8405,34 +8589,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     doctorId?: SortOrder
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type PatientScalarRelationFilter = {
@@ -8490,20 +8646,6 @@ export namespace Prisma {
     doctorId?: SortOrder
   }
 
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
   export type PrescriptionCountOrderByAggregateInput = {
     id?: SortOrder
     medication?: SortOrder
@@ -8554,6 +8696,7 @@ export namespace Prisma {
     appointmentDate?: SortOrder
     status?: SortOrder
     notes?: SortOrder
+    googleCalendarEventId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     patientId?: SortOrder
@@ -8564,6 +8707,7 @@ export namespace Prisma {
     appointmentDate?: SortOrder
     status?: SortOrder
     notes?: SortOrder
+    googleCalendarEventId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     patientId?: SortOrder
@@ -8574,6 +8718,7 @@ export namespace Prisma {
     appointmentDate?: SortOrder
     status?: SortOrder
     notes?: SortOrder
+    googleCalendarEventId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     patientId?: SortOrder
@@ -8623,6 +8768,14 @@ export namespace Prisma {
 
   export type StringFieldUpdateOperationsInput = {
     set?: string
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -8761,10 +8914,6 @@ export namespace Prisma {
     connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
   }
 
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
-  }
-
   export type UserUpdateOneRequiredWithoutPatientsNestedInput = {
     create?: XOR<UserCreateWithoutPatientsInput, UserUncheckedCreateWithoutPatientsInput>
     connectOrCreate?: UserCreateOrConnectWithoutPatientsInput
@@ -8869,10 +9018,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type PatientUpdateOneRequiredWithoutMedicalRecordsNestedInput = {
     create?: XOR<PatientCreateWithoutMedicalRecordsInput, PatientUncheckedCreateWithoutMedicalRecordsInput>
     connectOrCreate?: PatientCreateOrConnectWithoutMedicalRecordsInput
@@ -8947,6 +9092,31 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -8986,34 +9156,6 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | null
@@ -9042,17 +9184,6 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | null
@@ -9065,6 +9196,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type PatientCreateWithoutDoctorInput = {
@@ -9296,6 +9441,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     prescriptions?: PrescriptionCreateNestedManyWithoutDoctorInput
@@ -9309,6 +9458,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     prescriptions?: PrescriptionUncheckedCreateNestedManyWithoutDoctorInput
@@ -9399,6 +9552,7 @@ export namespace Prisma {
     appointmentDate: Date | string
     status?: string
     notes?: string | null
+    googleCalendarEventId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9408,6 +9562,7 @@ export namespace Prisma {
     appointmentDate: Date | string
     status?: string
     notes?: string | null
+    googleCalendarEventId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9439,6 +9594,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     prescriptions?: PrescriptionUpdateManyWithoutDoctorNestedInput
@@ -9452,6 +9611,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     prescriptions?: PrescriptionUncheckedUpdateManyWithoutDoctorNestedInput
@@ -9514,6 +9677,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFilter<"Appointment"> | Date | string
     status?: StringFilter<"Appointment"> | string
     notes?: StringNullableFilter<"Appointment"> | string | null
+    googleCalendarEventId?: StringNullableFilter<"Appointment"> | string | null
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
     patientId?: StringFilter<"Appointment"> | string
@@ -9567,6 +9731,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patients?: PatientCreateNestedManyWithoutDoctorInput
@@ -9580,6 +9748,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patients?: PatientUncheckedCreateNestedManyWithoutDoctorInput
@@ -9656,6 +9828,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patients?: PatientUpdateManyWithoutDoctorNestedInput
@@ -9669,6 +9845,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patients?: PatientUncheckedUpdateManyWithoutDoctorNestedInput
@@ -9723,6 +9903,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patients?: PatientCreateNestedManyWithoutDoctorInput
@@ -9736,6 +9920,10 @@ export namespace Prisma {
     firstName: string
     lastName: string
     role?: string
+    googleCalendarId?: string | null
+    googleAccessToken?: string | null
+    googleRefreshToken?: string | null
+    googleTokenExpiry?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     patients?: PatientUncheckedCreateNestedManyWithoutDoctorInput
@@ -9812,6 +10000,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patients?: PatientUpdateManyWithoutDoctorNestedInput
@@ -9825,6 +10017,10 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    googleCalendarId?: NullableStringFieldUpdateOperationsInput | string | null
+    googleAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    googleTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     patients?: PatientUncheckedUpdateManyWithoutDoctorNestedInput
@@ -10130,6 +10326,7 @@ export namespace Prisma {
     appointmentDate: Date | string
     status?: string
     notes?: string | null
+    googleCalendarEventId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -10223,6 +10420,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    googleCalendarEventId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10232,6 +10430,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    googleCalendarEventId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10241,6 +10440,7 @@ export namespace Prisma {
     appointmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    googleCalendarEventId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

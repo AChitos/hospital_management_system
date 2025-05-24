@@ -124,6 +124,10 @@ exports.Prisma.UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   role: 'role',
+  googleCalendarId: 'googleCalendarId',
+  googleAccessToken: 'googleAccessToken',
+  googleRefreshToken: 'googleRefreshToken',
+  googleTokenExpiry: 'googleTokenExpiry',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -179,6 +183,7 @@ exports.Prisma.AppointmentScalarFieldEnum = {
   appointmentDate: 'appointmentDate',
   status: 'status',
   notes: 'notes',
+  googleCalendarEventId: 'googleCalendarEventId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   patientId: 'patientId'
