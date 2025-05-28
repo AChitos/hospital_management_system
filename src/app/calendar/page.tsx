@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AuthLayout from '@/components/layouts/AuthLayout';
 import AppointmentCalendar from '@/components/calendar/AppointmentCalendar';
@@ -32,7 +32,7 @@ interface CalendarAppointment {
   googleCalendarEventId?: string;
 }
 
-export default function CalendarPage() {
+function CalendarPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
@@ -350,5 +350,31 @@ export default function CalendarPage() {
         )}
       </div>
     </AuthLayout>
+  );
+}
+
+// Loading component for Suspense fallback
+function CalendarLoading() {
+  return (
+    <AuthLayout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Calendar View</h1>
+          <div className="flex gap-2">
+            <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-10 w-48 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+        <div className="h-96 bg-gray-100 rounded-lg animate-pulse"></div>
+      </div>
+    </AuthLayout>
+  );
+}
+
+export default function CalendarPage() {
+  return (
+    <Suspense fallback={<CalendarLoading />}>
+      <CalendarPageContent />
+    </Suspense>
   );
 }
