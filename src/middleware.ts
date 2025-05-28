@@ -2,10 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, getUserById } from '@/lib/auth/auth';
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  
+  // Define protected routes
+  const protectedRoutes = [
+    '/api/patients',
+    '/api/prescriptions',
+    '/api/appointments',
+    '/api/medical-records',
+    '/api/auth/me',
+    '/api/calendar',
+    '/api/dashboard'
+  ];
+  
+  // Check if this is a protected route
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  
+  if (!isProtectedRoute) {
+    // Allow unprotected routes to pass through
+    return NextResponse.next();
+  }
+  
+  console.log('Middleware running for protected route:', pathname);
+  
   // Get token from Authorization header
   const authHeader = request.headers.get('Authorization');
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('No valid auth header found for:', pathname);
     return NextResponse.json(
       { error: 'Unauthorized - No token provided' },
       { status: 401 }
@@ -16,6 +40,7 @@ export async function middleware(request: NextRequest) {
   const tokenPayload = verifyToken(token);
   
   if (!tokenPayload) {
+    console.log('Invalid token for:', pathname);
     return NextResponse.json(
       { error: 'Unauthorized - Invalid token' },
       { status: 401 }
@@ -26,11 +51,14 @@ export async function middleware(request: NextRequest) {
   const user = await getUserById(tokenPayload.userId);
   
   if (!user) {
+    console.log('User not found for:', pathname);
     return NextResponse.json(
       { error: 'Unauthorized - User not found' },
       { status: 401 }
     );
   }
+  
+  console.log('Middleware passed for:', pathname, 'User:', user.id);
   
   // Add user to request headers
   const requestHeaders = new Headers(request.headers);
@@ -44,15 +72,9 @@ export async function middleware(request: NextRequest) {
   });
 }
 
-// Routes that require authentication
+// Configure matcher to run on all API routes (we'll filter inside the middleware)
 export const config = {
   matcher: [
-    '/api/patients/:path*',
-    '/api/prescriptions/:path*', 
-    '/api/appointments/:path*',
-    '/api/medical-records/:path*',
-    '/api/auth/me',
-    '/api/calendar/:path*',
-    '/api/dashboard/:path*'
+    '/api/:path*'
   ],
 };
