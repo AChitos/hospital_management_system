@@ -86,6 +86,9 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -166,6 +169,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
@@ -217,18 +225,17 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "sqlite",
-  "postinstall": false,
+  "activeProvider": "postgresql",
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": null
+        "value": "postgresql://hospital-management_owner:npg_iISP9CbN1Zqh@ep-icy-shadow-a8cgz4po-pooler.eastus2.azure.neon.tech/hospital-management?sslmode=require"
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// User model for doctor authentication\nmodel User {\n  id                 String          @id @default(uuid())\n  email              String          @unique\n  password           String\n  firstName          String\n  lastName           String\n  role               String          @default(\"DOCTOR\")\n  googleCalendarId   String?\n  googleAccessToken  String?\n  googleRefreshToken String?\n  googleTokenExpiry  DateTime?\n  createdAt          DateTime        @default(now())\n  updatedAt          DateTime        @updatedAt\n  patients           Patient[]\n  prescriptions      Prescription[]\n  medicalRecords     MedicalRecord[]\n}\n\n// Patient model\nmodel Patient {\n  id             String          @id @default(uuid())\n  firstName      String\n  lastName       String\n  dateOfBirth    DateTime\n  gender         String\n  contactNumber  String?\n  email          String?\n  address        String?\n  bloodType      String?\n  allergies      String?\n  createdAt      DateTime        @default(now())\n  updatedAt      DateTime        @updatedAt\n  doctor         User            @relation(fields: [doctorId], references: [id])\n  doctorId       String\n  medicalRecords MedicalRecord[]\n  prescriptions  Prescription[]\n  appointments   Appointment[]\n}\n\n// Medical Record model\nmodel MedicalRecord {\n  id            String    @id @default(uuid())\n  recordDate    DateTime  @default(now())\n  diagnosis     String\n  symptoms      String?\n  notes         String?\n  vitalSigns    String?\n  treatmentPlan String?\n  followUpDate  DateTime?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  patient       Patient   @relation(fields: [patientId], references: [id])\n  patientId     String\n  doctor        User?     @relation(fields: [doctorId], references: [id])\n  doctorId      String?\n}\n\n// Prescription model\nmodel Prescription {\n  id         String    @id @default(uuid())\n  medication String\n  dosage     String\n  frequency  String\n  duration   String\n  notes      String?\n  issuedDate DateTime  @default(now())\n  expiryDate DateTime?\n  createdAt  DateTime  @default(now())\n  updatedAt  DateTime  @updatedAt\n  patient    Patient   @relation(fields: [patientId], references: [id])\n  patientId  String\n  doctor     User      @relation(fields: [doctorId], references: [id])\n  doctorId   String\n}\n\n// Appointment model\nmodel Appointment {\n  id                    String   @id @default(uuid())\n  appointmentDate       DateTime\n  status                String   @default(\"SCHEDULED\") // SCHEDULED, COMPLETED, CANCELLED\n  notes                 String?\n  googleCalendarEventId String?\n  createdAt             DateTime @default(now())\n  updatedAt             DateTime @updatedAt\n  patient               Patient  @relation(fields: [patientId], references: [id])\n  patientId             String\n}\n",
-  "inlineSchemaHash": "7b4101eb66e8b18c7557219669d3188b5df144ae8459b10ed85b2284da81231b",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// User model for doctor authentication\nmodel User {\n  id                 String          @id @default(uuid())\n  email              String          @unique\n  password           String\n  firstName          String\n  lastName           String\n  role               String          @default(\"DOCTOR\")\n  googleCalendarId   String?\n  googleAccessToken  String?\n  googleRefreshToken String?\n  googleTokenExpiry  DateTime?\n  createdAt          DateTime        @default(now())\n  updatedAt          DateTime        @updatedAt\n  patients           Patient[]\n  prescriptions      Prescription[]\n  medicalRecords     MedicalRecord[]\n}\n\n// Patient model\nmodel Patient {\n  id             String          @id @default(uuid())\n  firstName      String\n  lastName       String\n  dateOfBirth    DateTime\n  gender         String\n  contactNumber  String?\n  email          String?\n  address        String?\n  bloodType      String?\n  allergies      String?\n  createdAt      DateTime        @default(now())\n  updatedAt      DateTime        @updatedAt\n  doctor         User            @relation(fields: [doctorId], references: [id])\n  doctorId       String\n  medicalRecords MedicalRecord[]\n  prescriptions  Prescription[]\n  appointments   Appointment[]\n}\n\n// Medical Record model\nmodel MedicalRecord {\n  id            String    @id @default(uuid())\n  recordDate    DateTime  @default(now())\n  diagnosis     String\n  symptoms      String?\n  notes         String?\n  vitalSigns    String?\n  treatmentPlan String?\n  followUpDate  DateTime?\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @updatedAt\n  patient       Patient   @relation(fields: [patientId], references: [id])\n  patientId     String\n  doctor        User?     @relation(fields: [doctorId], references: [id])\n  doctorId      String?\n}\n\n// Prescription model\nmodel Prescription {\n  id         String    @id @default(uuid())\n  medication String\n  dosage     String\n  frequency  String\n  duration   String\n  notes      String?\n  issuedDate DateTime  @default(now())\n  expiryDate DateTime?\n  createdAt  DateTime  @default(now())\n  updatedAt  DateTime  @updatedAt\n  patient    Patient   @relation(fields: [patientId], references: [id])\n  patientId  String\n  doctor     User      @relation(fields: [doctorId], references: [id])\n  doctorId   String\n}\n\n// Appointment model\nmodel Appointment {\n  id                    String   @id @default(uuid())\n  appointmentDate       DateTime\n  status                String   @default(\"SCHEDULED\") // SCHEDULED, COMPLETED, CANCELLED\n  notes                 String?\n  googleCalendarEventId String?\n  createdAt             DateTime @default(now())\n  updatedAt             DateTime @updatedAt\n  patient               Patient  @relation(fields: [patientId], references: [id])\n  patientId             String\n}\n",
+  "inlineSchemaHash": "8892ad05130ae147577a531e67b8c2cbed5ec5fa75e9cfef857160371e91a9a8",
   "copyEngine": true
 }
 config.dirname = '/'
