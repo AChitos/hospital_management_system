@@ -66,6 +66,7 @@ export default function LoginForm() {
                 id="email"
                 type="email"
                 placeholder="doctor@example.com"
+                autoComplete="email"
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
@@ -84,6 +85,7 @@ export default function LoginForm() {
               <Input
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 {...register("password", {
                   required: "Password is required",
                 })}

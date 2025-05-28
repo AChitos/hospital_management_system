@@ -1,5 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken, getUserById } from '@/lib/auth/auth';
+
+// Edge-compatible JWT verification with proper signature verification
+async function verifyJwtToken(token: string): Promise<{ userId: string; email: string; role: string } | null> {
+  try {
+    const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_development';
+    
+    // Split the token
+    const [header, payload, signature] = token.split('.');
+    
+    if (!header || !payload || !signature) {
+      return null;
+    }
+
+    // Decode and validate header
+    const decodedHeader = JSON.parse(atob(header.replace(/-/g, '+').replace(/_/g, '/')));
+    if (decodedHeader.alg !== 'HS256') {
+      return null;
+    }
+
+    // Decode payload
+    const decodedPayload = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    
+    // Check expiration
+    if (decodedPayload.exp && Date.now() >= decodedPayload.exp * 1000) {
+      return null;
+    }
+
+    // Verify signature using Web Crypto API (Edge Runtime compatible)
+    const encoder = new TextEncoder();
+    const secretKey = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(JWT_SECRET),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+
+    const signatureBytes = Uint8Array.from(atob(signature.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+    const dataToVerify = encoder.encode(`${header}.${payload}`);
+    
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      secretKey,
+      signatureBytes,
+      dataToVerify
+    );
+
+    if (!isValid) {
+      return null;
+    }
+
+    // Validate required fields
+    if (decodedPayload.userId && decodedPayload.email && decodedPayload.role) {
+      return {
+        userId: decodedPayload.userId,
+        email: decodedPayload.email,
+        role: decodedPayload.role
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('JWT verification error:', error);
+    return null;
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -29,7 +94,6 @@ export async function middleware(request: NextRequest) {
   const authHeader = request.headers.get('Authorization');
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('No valid auth header found for:', pathname);
     return NextResponse.json(
       { error: 'Unauthorized - No token provided' },
       { status: 401 }
@@ -37,32 +101,20 @@ export async function middleware(request: NextRequest) {
   }
 
   const token = authHeader.split(' ')[1];
-  const tokenPayload = verifyToken(token);
+  const tokenPayload = await verifyJwtToken(token);
   
   if (!tokenPayload) {
-    console.log('Invalid token for:', pathname);
     return NextResponse.json(
       { error: 'Unauthorized - Invalid token' },
       { status: 401 }
     );
   }
 
-  // Verify that the user exists
-  const user = await getUserById(tokenPayload.userId);
-  
-  if (!user) {
-    console.log('User not found for:', pathname);
-    return NextResponse.json(
-      { error: 'Unauthorized - User not found' },
-      { status: 401 }
-    );
-  }
-  
-  console.log('Middleware passed for:', pathname, 'User:', user.id);
-  
-  // Add user to request headers
+  // Add user information from token to request headers (no database lookup needed)
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('X-User-ID', user.id);
+  requestHeaders.set('X-User-ID', tokenPayload.userId);
+  requestHeaders.set('X-User-Email', tokenPayload.email);
+  requestHeaders.set('X-User-Role', tokenPayload.role);
   
   // Continue to the route handler
   return NextResponse.next({

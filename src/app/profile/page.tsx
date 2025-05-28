@@ -140,6 +140,7 @@ export default function ProfilePage() {
                     <Label htmlFor="firstName">First Name</Label>
                     <Input
                       id="firstName"
+                      autoComplete="given-name"
                       {...registerProfile("firstName", { required: "First name is required" })}
                     />
                     {profileErrors.firstName && (
@@ -150,6 +151,7 @@ export default function ProfilePage() {
                     <Label htmlFor="lastName">Last Name</Label>
                     <Input
                       id="lastName"
+                      autoComplete="family-name"
                       {...registerProfile("lastName", { required: "Last name is required" })}
                     />
                     {profileErrors.lastName && (
@@ -162,6 +164,7 @@ export default function ProfilePage() {
                   <Input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     {...registerProfile("email", { 
                       required: "Email is required",
                       pattern: {
@@ -205,6 +208,7 @@ export default function ProfilePage() {
                   <Input
                     id="currentPassword"
                     type="password"
+                    autoComplete="current-password"
                     {...registerPassword("currentPassword", { required: "Current password is required" })}
                   />
                   {passwordErrors.currentPassword && (
@@ -216,6 +220,7 @@ export default function ProfilePage() {
                   <Input
                     id="newPassword"
                     type="password"
+                    autoComplete="new-password"
                     {...registerPassword("newPassword", { 
                       required: "New password is required",
                       minLength: {
@@ -233,6 +238,7 @@ export default function ProfilePage() {
                   <Input
                     id="confirmPassword"
                     type="password"
+                    autoComplete="new-password"
                     {...registerPassword("confirmPassword", { 
                       required: "Please confirm your password",
                       validate: value => value === newPassword || "Passwords do not match" 
