@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 "use client";
 
 import { useState, useEffect } from "react";
@@ -36,7 +35,7 @@ interface MedicalRecordFormData {
   followUpDate?: string;
 }
 
-export default function ClientNewMedicalRecordPage() {
+export default function NewMedicalRecordPage() {
   const router = useRouter();
   
   // State to store URL parameters - retrieved safely on client side
@@ -155,7 +154,7 @@ export default function ClientNewMedicalRecordPage() {
                         className="react-select"
                         classNamePrefix="react-select"
                         value={patientOptions.find(option => option.value === field.value) || null}
-                        onChange={(option: any) => field.onChange(option ? option.value : '')}
+                        onChange={(option: PatientOption | null) => field.onChange(option ? option.value : '')}
                         styles={{
                           control: (provided) => ({
                             ...provided,
