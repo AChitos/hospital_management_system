@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/lib/auth/authStore";
+import { api } from "@/lib/utils/apiClient";
 
 interface ProfileFormData {
   firstName: string;
@@ -23,7 +24,7 @@ interface PasswordFormData {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -69,25 +70,29 @@ export default function ProfilePage() {
     setProfileMessage(null);
     
     try {
-      // In a real app, we would update via API
-      console.log("Updating profile with data:", data);
+      const response = await api.put('/api/profile', data);
       
-      // Mock successful update
-      setTimeout(() => {
-        setIsProfileLoading(false);
+      if (response.status === 200 && response.data) {
+        // Update the user data in the auth store
+        updateUser(response.data as any);
         setProfileMessage({
           type: "success",
           text: "Profile updated successfully",
         });
-      }, 1000);
-      
+      } else {
+        setProfileMessage({
+          type: "error",
+          text: response.error || "Failed to update profile. Please try again.",
+        });
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
-      setIsProfileLoading(false);
       setProfileMessage({
         type: "error",
         text: "Failed to update profile. Please try again.",
       });
+    } finally {
+      setIsProfileLoading(false);
     }
   };
 
@@ -96,26 +101,31 @@ export default function ProfilePage() {
     setPasswordMessage(null);
     
     try {
-      // In a real app, we would update via API
-      console.log("Updating password", data);
+      const response = await api.post('/api/profile/password', {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
       
-      // Mock successful update
-      setTimeout(() => {
-        setIsPasswordLoading(false);
+      if (response.status === 200) {
         setPasswordMessage({
           type: "success",
           text: "Password changed successfully",
         });
         resetPassword();
-      }, 1000);
-      
+      } else {
+        setPasswordMessage({
+          type: "error",
+          text: response.error || "Failed to change password. Please verify your current password and try again.",
+        });
+      }
     } catch (error) {
       console.error("Error changing password:", error);
-      setIsPasswordLoading(false);
       setPasswordMessage({
         type: "error",
         text: "Failed to change password. Please verify your current password and try again.",
       });
+    } finally {
+      setIsPasswordLoading(false);
     }
   };
 
