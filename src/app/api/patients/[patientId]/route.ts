@@ -10,53 +10,11 @@ export async function GET(
   try {
     const { patientId } = await params;
     
-    // In development mode, bypass authentication and return patient without doctorId filtering
-    if (process.env.NODE_ENV === 'development') {
-      const patient = await db.patient.findUnique({
-        where: {
-          id: patientId,
-        },
-        include: {
-          medicalRecords: {
-            orderBy: { recordDate: 'desc' },
-          },
-          prescriptions: {
-            orderBy: { issuedDate: 'desc' },
-          },
-          appointments: {
-            orderBy: { appointmentDate: 'desc' },
-          },
-        },
-      });
-
-      if (!patient) {
-        return NextResponse.json(
-          { error: 'Patient not found' },
-          { status: 404 }
-        );
-      }
-
-      return NextResponse.json(patient);
-    }
-
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
     
-    const doctorId = payload.userId;
-
     if (!doctorId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
     const patient = await db.patient.findUnique({
@@ -100,18 +58,13 @@ export async function PUT(
   { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
     
-    const doctorId = payload.userId;
     const { patientId } = await params;
 
     const body = await request.json();
@@ -170,18 +123,13 @@ export async function DELETE(
   { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
     
-    const doctorId = payload.userId;
     const { patientId } = await params;
 
     // Check if patient exists and belongs to doctor

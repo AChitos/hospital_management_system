@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, getUserById } from '@/lib/auth/auth';
 
 export async function middleware(request: NextRequest) {
-  // For development only - bypass authentication
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Development mode: Bypassing authentication');
-    return NextResponse.next();
-  }
-
   // Get token from Authorization header
   const authHeader = request.headers.get('Authorization');
   
@@ -49,3 +43,16 @@ export async function middleware(request: NextRequest) {
     },
   });
 }
+
+// Routes that require authentication
+export const config = {
+  matcher: [
+    '/api/patients/:path*',
+    '/api/prescriptions/:path*', 
+    '/api/appointments/:path*',
+    '/api/medical-records/:path*',
+    '/api/auth/me',
+    '/api/calendar/:path*',
+    '/api/dashboard/:path*'
+  ],
+};

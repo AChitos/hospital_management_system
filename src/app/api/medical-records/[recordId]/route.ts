@@ -6,13 +6,23 @@ export async function GET(
   { params }: { params: Promise<{ recordId: string }> }
 ) {
   try {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     const { recordId } = await params;
     const prisma = new PrismaClient();
     
     try {
-      // Get the medical record by ID
-      const medicalRecord = await prisma.medicalRecord.findUnique({
-        where: { id: recordId },
+      // Get the medical record by ID and verify access
+      const medicalRecord = await prisma.medicalRecord.findFirst({
+        where: { 
+          id: recordId,
+          patient: { doctorId }
+        },
         include: {
           patient: {
             select: {
@@ -50,11 +60,30 @@ export async function PUT(
   { params }: { params: Promise<{ recordId: string }> }
 ) {
   try {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     const { recordId } = await params;
     const data = await request.json();
     const prisma = new PrismaClient();
     
     try {
+      // Verify the medical record belongs to this doctor
+      const existingRecord = await prisma.medicalRecord.findFirst({
+        where: {
+          id: recordId,
+          patient: { doctorId }
+        }
+      });
+
+      if (!existingRecord) {
+        return NextResponse.json({ error: 'Medical record not found' }, { status: 404 });
+      }
+
       // Update medical record
       const updatedRecord = await prisma.medicalRecord.update({
         where: { id: recordId },
@@ -83,10 +112,29 @@ export async function DELETE(
   { params }: { params: Promise<{ recordId: string }> }
 ) {
   try {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     const { recordId } = await params;
     const prisma = new PrismaClient();
     
     try {
+      // Verify the medical record belongs to this doctor
+      const existingRecord = await prisma.medicalRecord.findFirst({
+        where: {
+          id: recordId,
+          patient: { doctorId }
+        }
+      });
+
+      if (!existingRecord) {
+        return NextResponse.json({ error: 'Medical record not found' }, { status: 404 });
+      }
+
       // Delete medical record
       await prisma.medicalRecord.delete({
         where: { id: recordId }

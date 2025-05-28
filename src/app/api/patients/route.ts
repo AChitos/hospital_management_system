@@ -5,26 +5,12 @@ import { verifyToken } from '@/lib/auth/auth';
 // GET all patients for the logged-in doctor
 export async function GET(request: NextRequest) {
   try {
-    // In development mode, bypass authentication and return all patients
-    if (process.env.NODE_ENV === 'development') {
-      const patients = await db.patient.findMany({
-        orderBy: { updatedAt: 'desc' },
-      });
-      return NextResponse.json(patients);
-    }
-
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-    
-    const doctorId = payload.userId;
 
     const patients = await db.patient.findMany({
       where: { doctorId },
@@ -44,18 +30,12 @@ export async function GET(request: NextRequest) {
 // POST create a new patient
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-    
-    const doctorId = payload.userId;
 
     const body = await request.json();
     const { firstName, lastName, dateOfBirth, gender, contactNumber, email, address, bloodType, allergies } = body;

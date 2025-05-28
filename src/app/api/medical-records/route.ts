@@ -6,22 +6,23 @@ import { verifyToken } from '@/lib/auth/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const prisma = new PrismaClient();
     
     try {
-      // Get all medical records with patient information
+      // Get all medical records for patients of this doctor
       const medicalRecords = await prisma.medicalRecord.findMany({
+        where: {
+          patient: {
+            doctorId: doctorId
+          }
+        },
         include: {
           patient: {
             select: {
@@ -48,15 +49,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
+    // Get user ID from middleware (routes in middleware matcher get this header)
+    const doctorId = request.headers.get('X-User-ID');
+    
+    if (!doctorId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const data = await request.json();
@@ -69,6 +66,18 @@ export async function POST(request: NextRequest) {
     const prisma = new PrismaClient();
     
     try {
+      // Verify the patient belongs to this doctor
+      const patient = await prisma.patient.findFirst({
+        where: {
+          id: data.patientId,
+          doctorId: doctorId
+        }
+      });
+
+      if (!patient) {
+        return NextResponse.json({ error: 'Patient not found or unauthorized' }, { status: 404 });
+      }
+
       // Create new medical record
       const medicalRecord = await prisma.medicalRecord.create({
         data: {
