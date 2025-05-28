@@ -13,6 +13,7 @@
     "db:reset": "prisma migrate reset --force --skip-generate && npx prisma db push && npm run seed",
     "db:studio": "npx prisma studio",
     "db:migrate": "npx prisma migrate dev",
+    "db:verify": "node verify-db.js",
     "reset-password": "node reset-password.js"
   },
   "prisma": {
