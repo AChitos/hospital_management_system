@@ -25,14 +25,14 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+    <div className="flex min-h-screen" style={{ backgroundColor: '#f0f2f5' }}>
+      <Sidebar isOpen={isSidebarOpen} />
       
-      <div className="flex flex-1">
-        <Sidebar isOpen={isSidebarOpen} />
+      <div className="flex flex-col flex-1">
+        <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
         
         <div 
-          className="flex-1 px-4 py-6 overflow-auto lg:px-6"
+          className="flex-1 px-6 py-6 overflow-auto"
           onClick={() => {
             // Close sidebar when clicking on main content (mobile only)
             if (isSidebarOpen && window.innerWidth < 1024) {
@@ -40,9 +40,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             }
           }}
         >
-          <main className="max-w-7xl mx-auto">{children}</main>
+          <main>{children}</main>
         </div>
       </div>
+
+      {/* Mobile overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-10 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }

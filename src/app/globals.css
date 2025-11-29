@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #3b82f6;    /* blue-500 */
-  --primary-hover: #2563eb;  /* blue-600 */
-  --secondary: #374151;  /* gray-700 */
-  --accent: #8b5cf6;     /* purple-500 */
-  --muted: #6b7280;      /* gray-500 */
-  --muted-foreground: #4b5563;  /* gray-600 */
+  --background: #f0f2f5;
+  --foreground: #262626;
+  --primary: #1890ff;
+  --primary-hover: #40a9ff;
+  --secondary: #001529;
+  --accent: #52c41a;
+  --muted: #8c8c8c;
+  --muted-foreground: #595959;
   --card: #ffffff;
-  --card-foreground: #171717;
-  --border: #e5e7eb;     /* gray-200 */
-  --input: #e5e7eb;      /* gray-200 */
+  --card-foreground: #262626;
+  --border: #d9d9d9;
+  --input: #d9d9d9;
+  --sidebar-bg: #001529;
+  --sidebar-hover: #002140;
+  --sidebar-active: #1890ff;
 }
 
 @theme inline {
@@ -30,7 +33,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5715;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Improve text visibility in form elements */
@@ -53,16 +60,74 @@ table {
   color: #171717;
 }
 
-/* Ensure buttons have good contrast */
+/* Modern button styles */
 button, .button {
-  background-color: #3b82f6; /* blue-500 */
+  background-color: var(--primary);
   color: white;
   font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
 }
 
-/* Better visibility for secondary buttons */
+button:hover, .button:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.25);
+}
+
 button[type="button"], .button-secondary {
-  background-color: #f3f4f6; /* gray-100 */
-  color: #1f2937; /* gray-800 */
-  border: 1px solid #e5e7eb; /* gray-200 */
+  background-color: #ffffff;
+  color: #262626;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+}
+
+button[type="button"]:hover, .button-secondary:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Card styles */
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  padding: 24px;
+}
+
+.card:hover {
+  box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.16), 0 3px 6px 0 rgba(0, 0, 0, 0.12), 0 5px 12px 4px rgba(0, 0, 0, 0.09);
+}
+
+/* Badge styles */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.badge-primary {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.badge-success {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.badge-warning {
+  background: #fff7e6;
+  color: #faad14;
+}
+
+.badge-danger {
+  background: #fff1f0;
+  color: #ff4d4f;
 }

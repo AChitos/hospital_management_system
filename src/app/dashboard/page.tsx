@@ -126,23 +126,17 @@ export default function Dashboard() {
 
   return (
     <AuthLayout>
-      <div className="bg-gray-50 min-h-screen py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-            <p className="text-gray-600 mt-2">Welcome to your healthcare management system</p>
-          </div>
-
+      <div className="space-y-6">
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-5 mb-8 rounded-lg shadow-sm flex items-center">
-            <svg className="w-6 h-6 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg shadow-sm flex items-center">
+            <svg className="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 01-1-1v-4a1 1 0 112 0v4a1 1 0 01-1 1z" clipRule="evenodd" />
             </svg>
-            <p className="font-medium">{error}</p>
+            <p className="text-sm font-medium">{error}</p>
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total Patients"
             value={stats.totalPatients}
@@ -171,12 +165,12 @@ export default function Dashboard() {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <ActivityChart 
               title="Weekly Appointment Activity"
               data={useFallbackData()} 
-              color="#3b82f6"
+              color="#1890ff"
               isLoading={isLoading}
             />
           </div>
@@ -189,12 +183,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 mb-8">
+        <div className="grid grid-cols-1">
           <UpcomingAppointments 
             appointments={appointments} 
             isLoading={isLoading} 
           />
-        </div>
         </div>
       </div>
     </AuthLayout>
