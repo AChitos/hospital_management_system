@@ -19,14 +19,14 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md mb-8 text-center">
-        <h1 className="text-3xl font-bold text-blue-600">AnesthCare</h1>
-        <p className="mt-2 text-gray-600">Anesthesiologist Management System</p>
+        <h1 className="text-3xl font-bold text-blue-600">Polyclinic Deauville</h1>
+        <p className="mt-2 text-gray-600">Healthcare Management System</p>
       </div>
       
       <LoginForm />
       
       <div className="mt-8 text-sm text-gray-500 text-center">
-        <p>© {new Date().getFullYear()} AnesthCare. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Polyclinic Deauville. All rights reserved.</p>
       </div>
     </div>
   );

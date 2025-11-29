@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AnesthCare - Anesthesiologist Management System",
-  description: "A complete management system for anesthesiologists to track patients, appointments, prescriptions, and medical records",
+  title: "Polyclinic Deauville - Healthcare Management System",
+  description: "A comprehensive healthcare management system for Polyclinic Deauville to track patients, appointments, prescriptions, and medical records",
 };
 
 export default function RootLayout({

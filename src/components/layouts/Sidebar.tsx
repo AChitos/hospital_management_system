@@ -89,7 +89,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         <div className="pt-4 mt-6 border-t">
           <div className="px-4 py-2">
             <p className="text-xs text-gray-500">
-              &copy; {new Date().getFullYear()} AnesthCare
+              &copy; {new Date().getFullYear()} Polyclinic Deauville
             </p>
           </div>
         </div>
