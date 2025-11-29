@@ -124,5 +124,5 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         </nav>
       </div>
     </div>
-  );}
+  );
 }
