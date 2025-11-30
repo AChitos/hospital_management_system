@@ -26,7 +26,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
           </button>
           <Link href="/dashboard" className="flex items-center">
             <h1 className="text-xl font-bold text-blue-600">
-              Polyclinic Deauville
+              Clinic Tous Vents
             </h1>
           </Link>
         </div>

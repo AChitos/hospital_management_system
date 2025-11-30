@@ -55,7 +55,7 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">Polyclinic Deauville Login</CardTitle>
+        <CardTitle className="text-2xl font-bold">Clinic Tous Vents Login</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
