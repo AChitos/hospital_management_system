@@ -11,13 +11,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Polyclinic Deauville - Healthcare Management System",
-  description: "A comprehensive healthcare management system for Polyclinic Deauville to track patients, appointments, prescriptions, and medical records",
+  title: "Clinic Tous Vents - Healthcare Management System",
+  description: "A comprehensive healthcare management system for Clinic Tous Vents to track patients, appointments, prescriptions, and medical records",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Polyclinic Deauville",
+    title: "Clinic Tous Vents",
   },
   icons: {
     icon: [
@@ -41,7 +41,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#e91e63" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Polyclinic" />
+        <meta name="apple-mobile-web-app-title" content="Clinic Tous Vents" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
       </head>

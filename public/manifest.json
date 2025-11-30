@@ -1,7 +1,7 @@
 {
-  "name": "Polyclinic Deauville - Healthcare Management",
-  "short_name": "Polyclinic",
-  "description": "Healthcare Management System for Polyclinic Deauville",
+  "name": "Clinic Tous Vents - Healthcare Management",
+  "short_name": "Clinic Tous Vents",
+  "description": "Healthcare Management System for Clinic Tous Vents",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
