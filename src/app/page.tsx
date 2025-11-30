@@ -18,9 +18,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md mb-8 text-center">
-        <h1 className="text-3xl font-bold text-blue-600">Clinic Tous Vents</h1>
-        <p className="mt-2 text-gray-600">Healthcare Management System</p>
+      <div className="w-full max-w-md mb-8 text-center flex justify-center">
+        <img 
+          src="/icon-512.png" 
+          alt="Clinic Tous Vents" 
+          className="h-32 w-auto object-contain"
+        />
       </div>
       
       <LoginForm />
